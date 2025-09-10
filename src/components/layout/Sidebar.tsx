@@ -85,9 +85,9 @@ const iconMap = {
 
 const Sidebar = () => {
   return (
-    <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-secondary-200 overflow-y-auto">
+    <aside className="fixed left-0 top-18 h-[calc(100vh-4.5rem)] w-70 bg-gray-900 border-r border-gray-600 overflow-y-auto">
       <nav className="p-4">
-        <div className="sidebar-nav">
+        <div className="space-y-1">
           {navigationItems.map((item) => {
             const IconComponent = iconMap[item.icon as keyof typeof iconMap];
             
@@ -96,13 +96,17 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `sidebar-nav-item ${isActive ? 'active' : ''}`
+                  `flex items-center h-12 px-4 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    isActive 
+                      ? 'bg-green-600 text-gray-50' 
+                      : 'text-gray-400 hover:bg-gray-700 hover:text-gray-50'
+                  }`
                 }
               >
-                <IconComponent className="sidebar-nav-item-icon" />
+                <IconComponent className="w-5 h-5 mr-3" />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="ml-auto bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
+                  <span className="ml-auto bg-green-600 text-white text-xs px-2 py-1 rounded-full">
                     {item.badge}
                   </span>
                 )}
@@ -112,35 +116,35 @@ const Sidebar = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="mt-8 p-4 bg-primary-50 rounded-lg">
-          <h3 className="text-sm font-semibold text-primary-900 mb-3">Quick Stats</h3>
+        <div className="mt-8 p-4 bg-gray-700 rounded-lg border border-gray-600">
+          <h3 className="text-sm font-semibold text-gray-50 mb-3">Quick Stats</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-primary-700">Active Rewards</span>
-              <span className="font-medium text-primary-900">24</span>
+              <span className="text-gray-400">Active Rewards</span>
+              <span className="font-medium text-gray-50">24</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-primary-700">Points Awarded</span>
-              <span className="font-medium text-primary-900">12,450</span>
+              <span className="text-gray-400">Points Awarded</span>
+              <span className="font-medium text-gray-50">12,450</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-primary-700">Participants</span>
-              <span className="font-medium text-primary-900">156</span>
+              <span className="text-gray-400">Participants</span>
+              <span className="font-medium text-gray-50">156</span>
             </div>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="mt-4 p-4 bg-secondary-50 rounded-lg">
-          <h3 className="text-sm font-semibold text-secondary-900 mb-3">Recent Activity</h3>
+        <div className="mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
+          <h3 className="text-sm font-semibold text-gray-50 mb-3">Recent Activity</h3>
           <div className="space-y-2">
-            <div className="text-xs text-secondary-600">
-              <p className="font-medium">New reward earned</p>
-              <p className="text-secondary-500">Dr. Smith - 2 hours ago</p>
+            <div className="text-xs text-gray-400">
+              <p className="font-medium text-gray-50">New reward earned</p>
+              <p className="text-gray-500">Dr. Smith - 2 hours ago</p>
             </div>
-            <div className="text-xs text-secondary-600">
-              <p className="font-medium">Goal achieved</p>
-              <p className="text-secondary-500">Cardiology Dept - 4 hours ago</p>
+            <div className="text-xs text-gray-400">
+              <p className="font-medium text-gray-50">Goal achieved</p>
+              <p className="text-gray-500">Cardiology Dept - 4 hours ago</p>
             </div>
           </div>
         </div>
