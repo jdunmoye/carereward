@@ -1,6 +1,15 @@
-import { Activity, Heart, Users, TrendingUp, Target, Award } from 'lucide-react';
+import { Activity, Heart, Users, TrendingUp, Target, Award, RefreshCw, Moon, Sun } from 'lucide-react';
+import { useState } from 'react';
 
 const ClinicalMetrics = () => {
+  const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('6m');
+  const [loading, setLoading] = useState(false);
+  const [isDark, setIsDark] = useState(true); // Default to dark mode
+
+  const handleRefresh = () => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 1000);
+  };
   const clinicalData = [
     {
       title: 'Patient Satisfaction',
@@ -55,20 +64,55 @@ const ClinicalMetrics = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-secondary-900">Clinical Metrics</h1>
-          <p className="text-secondary-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Clinical Metrics</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Monitor patient outcomes, quality scores, and clinical performance indicators.
           </p>
         </div>
-        <div className="flex space-x-3">
-          <button className="btn btn-outline btn-md">
-            <Target className="h-4 w-4 mr-2" />
+        
+        {/* Date Range Selector */}
+        <div className="flex items-center gap-4">
+          <div className="flex bg-white dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
+            {(['1m', '3m', '6m', '1y'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setDateRange(range)}
+                className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
+                  dateRange === range
+                    ? "bg-green-500 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                }`}
+              >
+                {range.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="p-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={() => setIsDark(!isDark)}
+            className="p-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+          >
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+          
+          <button className="px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:border-green-300 dark:hover:border-green-600 transition-colors">
+            <Target className="h-4 w-4 mr-2 inline" />
             Set Targets
           </button>
-          <button className="btn btn-primary btn-md">
-            <Activity className="h-4 w-4 mr-2" />
+          <button className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors">
+            <Activity className="h-4 w-4 mr-2 inline" />
             View Details
           </button>
         </div>

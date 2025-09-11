@@ -1,15 +1,21 @@
 // Utility helper functions
 
-import { format, parseISO, isValid } from 'date-fns';
-
 /**
  * Format a date string or Date object to a readable format
  */
 export const formatDate = (date: string | Date, formatStr: string = 'MMM dd, yyyy'): string => {
   try {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    if (!isValid(dateObj)) return 'Invalid Date';
-    return format(dateObj, formatStr);
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return 'Invalid Date';
+    
+    // Simple date formatting without external dependencies
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    };
+    
+    return dateObj.toLocaleDateString('en-US', options);
   } catch (error) {
     return 'Invalid Date';
   }
@@ -157,9 +163,9 @@ export const getColorClass = (
   value: number,
   thresholds: { good: number; warning: number }
 ): string => {
-  if (value >= thresholds.good) return 'text-success-600';
-  if (value >= thresholds.warning) return 'text-warning-600';
-  return 'text-accent-600';
+  if (value >= thresholds.good) return 'text-emerald-600';
+  if (value >= thresholds.warning) return 'text-amber-600';
+  return 'text-red-600';
 };
 
 /**
@@ -183,11 +189,11 @@ export const isValidPhone = (phone: string): boolean => {
  */
 export const getRandomColor = (): string => {
   const colors = [
-    'bg-primary-500',
-    'bg-success-500',
-    'bg-warning-500',
-    'bg-accent-500',
-    'bg-secondary-500',
+    'bg-emerald-500',
+    'bg-blue-500',
+    'bg-amber-500',
+    'bg-purple-500',
+    'bg-teal-500',
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
