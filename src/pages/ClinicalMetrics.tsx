@@ -4,7 +4,7 @@ import { useState } from 'react';
 const ClinicalMetrics = () => {
   const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('6m');
   const [loading, setLoading] = useState(false);
-  const [isDark, setIsDark] = useState(true); // Default to dark mode
+  const [isDark, setIsDark] = useState(false); // Default to light mode
 
   const handleRefresh = () => {
     setLoading(true);

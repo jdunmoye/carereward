@@ -19,6 +19,9 @@ export * from './rewards';
 // Success Stories Mock Data
 export * from './success';
 
+// Current Situation Mock Data
+export * from './currentSituation';
+
 // Legacy mock data for backward compatibility
 import { 
   User, 

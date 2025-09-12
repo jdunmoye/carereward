@@ -2,7 +2,7 @@ import { ExampleContent } from '../components/ui/dashboard-with-collapsible-side
 import { useState } from 'react';
 
 const Dashboard = () => {
-  const [isDark, setIsDark] = useState(true); // Default to dark mode
+  const [isDark, setIsDark] = useState(false); // Default to light mode
   
   return <ExampleContent isDark={isDark} setIsDark={setIsDark} />;
 };
