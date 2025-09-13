@@ -34,7 +34,6 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { 
-  mockPMPMData,
   mockBehaviorAlerts,
   mockChronicConditions,
   mockUsers,
@@ -42,9 +41,14 @@ import {
   mockOpportunityMetrics,
 } from "../../data/mockData";
 import { formatCurrency, formatDate } from "../../utils/helpers";
+// Import types from Dashboard
+import { LineOfBusiness, ProductType, TimePeriod } from "../../pages/Dashboard";
 
 export const Example = () => {
   const [isDark, setIsDark] = useState(false);
+  const [lineOfBusiness, setLineOfBusiness] = useState<LineOfBusiness>('COMM');
+  const [productType, setProductType] = useState<ProductType>('HMO');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('3m');
 
   useEffect(() => {
     if (isDark) {
@@ -58,7 +62,16 @@ export const Example = () => {
     <div className={`flex min-h-screen w-full ${isDark ? 'dark' : ''}`}>
       <div className="flex w-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         <Sidebar />
-        <ExampleContent isDark={isDark} setIsDark={setIsDark} />
+        <ExampleContent 
+          isDark={isDark} 
+          setIsDark={setIsDark}
+          lineOfBusiness={lineOfBusiness}
+          setLineOfBusiness={setLineOfBusiness}
+          productType={productType}
+          setProductType={setProductType}
+          timePeriod={timePeriod}
+          setTimePeriod={setTimePeriod}
+        />
       </div>
     </div>
   );
@@ -330,11 +343,25 @@ const ToggleClose = ({ open, setOpen }: ToggleCloseProps) => {
 interface ExampleContentProps {
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
+  lineOfBusiness: LineOfBusiness;
+  setLineOfBusiness: (lob: LineOfBusiness) => void;
+  productType: ProductType;
+  setProductType: (pt: ProductType) => void;
+  timePeriod: TimePeriod;
+  setTimePeriod: (tp: TimePeriod) => void;
 }
 
-const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
+const ExampleContent = ({ 
+  isDark, 
+  setIsDark, 
+  lineOfBusiness, 
+  setLineOfBusiness, 
+  productType, 
+  setProductType, 
+  timePeriod, 
+  setTimePeriod 
+}: ExampleContentProps) => {
   // State management
-  const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('6m');
   const [loading, setLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'high_risk' | 'diabetes' | 'hypertension'>('all');
 
@@ -348,7 +375,6 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
   }, [isDark]);
   
   // Get the latest data
-  const latestPMPM = mockPMPMData[mockPMPMData.length - 1];
   const currentUser = mockUsers[0]; // Dr. Sarah Johnson
   const recentAlerts = mockBehaviorAlerts.slice(0, 5);
   const topOpportunities = mockOpportunityMetrics.slice(0, 3);
@@ -368,15 +394,16 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
           <p className="text-gray-600 dark:text-gray-400 mt-1">Healthcare analytics and population health insights</p>
         </div>
         
-        {/* Date Range Selector */}
-        <div className="flex items-center gap-4">
+        {/* Control Selectors */}
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* Time Period Selector */}
           <div className="flex bg-white dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
             {(['1m', '3m', '6m', '1y'] as const).map((range) => (
               <button
                 key={range}
-                onClick={() => setDateRange(range)}
+                onClick={() => setTimePeriod(range)}
                 className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                  dateRange === range
+                  timePeriod === range
                     ? "bg-green-500 text-white shadow-sm"
                     : "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
                 }`}
@@ -384,6 +411,37 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
                 {range.toUpperCase()}
               </button>
             ))}
+          </div>
+          
+          {/* Line of Business Dropdown */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Line of Business:</label>
+            <select
+              value={lineOfBusiness}
+              onChange={(e) => setLineOfBusiness(e.target.value as LineOfBusiness)}
+              className="text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1 min-w-[140px]"
+            >
+              <option value="MCR">Medicare (MCR)</option>
+              <option value="MCD">Medicaid (MCD)</option>
+              <option value="COMM">Commercial (COMM)</option>
+            </select>
+          </div>
+          
+          {/* Product Type Dropdown */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Product Type:</label>
+            <select
+              value={productType}
+              onChange={(e) => setProductType(e.target.value as ProductType)}
+              className="text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1 min-w-[100px]"
+            >
+              <option value="PPO">PPO</option>
+              <option value="HMO">HMO</option>
+              <option value="HSA">HSA</option>
+              <option value="MMCD">MMCD</option>
+              <option value="CHP">CHP</option>
+              <option value="ESRD">ESRD</option>
+            </select>
           </div>
           
           {/* Refresh Button */}
@@ -458,8 +516,8 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
               <TrendingDown className="h-4 w-4 text-red-500" />
             </div>
             <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Total PMPM</h3>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(latestPMPM?.totalPMPM || 0)}</p>
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1">-2.5% from last month</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">$680</p>
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1">-2.5% vs. Prior Quarter</p>
           </div>
           
           <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
@@ -469,9 +527,9 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
               </div>
               <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
-            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Active Members</h3>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{latestPMPM?.memberCount?.toLocaleString() || '0'}</p>
-            <p className="text-sm text-green-600 dark:text-green-400 mt-1">+5% from last week</p>
+            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Active Membership</h3>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">23,383</p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-1">+5% vs. Prior Quarter</p>
           </div>
           
           <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
@@ -482,8 +540,8 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
               <TrendingDown className="h-4 w-4 text-red-500" />
             </div>
             <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Medical PMPM</h3>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(latestPMPM?.medicalPMPM || 0)}</p>
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1">-4.5% from last month</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">$517</p>
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1">-4.5% vs. Prior Quarter</p>
           </div>
 
           <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
@@ -493,9 +551,9 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
               </div>
               <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
-            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Pharmacy PMPM</h3>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(latestPMPM?.pharmacyPMPM || 0)}</p>
-            <p className="text-sm text-green-600 dark:text-green-400 mt-1">+2.1% from last month</p>
+            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Rx PMPM</h3>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">$163</p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-1">+2.1% vs. Prior Quarter</p>
           </div>
         </div>
         
@@ -616,29 +674,71 @@ const ExampleContent = ({ isDark, setIsDark }: ExampleContentProps) => {
               </NavLink>
             </div>
             
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Risk Adjusted PMPM</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(latestPMPM?.riskAdjustedPMPM || 0)}</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Quality Score</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">87.3%</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '87%' }}></div>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Risk Score */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Risk Score</span>
+                  <div className="p-1 rounded bg-amber-100 dark:bg-amber-900/30">
+                    <Target className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">1.2</span>
               </div>
               
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Member Satisfaction</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">92.1%</span>
+              {/* Risk Adjusted PMPM */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Risk Adjusted PMPM</span>
+                  <div className="p-1 rounded bg-blue-100 dark:bg-blue-900/30">
+                    <DollarSign className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$558</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+              
+              {/* Member Satisfaction */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Member Satisfaction</span>
+                  <div className="p-1 rounded bg-green-100 dark:bg-green-900/30">
+                    <Heart className="h-3 w-3 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">92.1%</span>
+              </div>
+              
+              {/* Quality Score */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Quality Score</span>
+                  <div className="p-1 rounded bg-green-100 dark:bg-green-900/30">
+                    <Star className="h-3 w-3 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">92%</span>
+              </div>
+              
+              {/* Adherence Score */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Adherence Score</span>
+                  <div className="p-1 rounded bg-blue-100 dark:bg-blue-900/30">
+                    <CheckCircle className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">85.7%</span>
+              </div>
+              
+              {/* Compliance Score */}
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Compliance Score</span>
+                  <div className="p-1 rounded bg-green-100 dark:bg-green-900/30">
+                    <Award className="h-3 w-3 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">88.2%</span>
               </div>
             </div>
           </div>

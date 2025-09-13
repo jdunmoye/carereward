@@ -2,7 +2,7 @@
 
 import { PMPMData, FinancialTrends, BenchmarkData, CostDrivers, FinancialOpportunity, BudgetAllocation, CostSavings } from '../types/financial';
 
-// Generate 6 months of historical PMPM data
+// Generate 6 months of historical PMPM data with updated values for 3-month default
 export const mockPMPMData: PMPMData[] = [
   {
     id: 'pmpm-2024-01',
@@ -31,54 +31,54 @@ export const mockPMPMData: PMPMData[] = [
   {
     id: 'pmpm-2024-03',
     period: new Date('2024-03-01'),
-    totalPMPM: 478.90,
-    medicalPMPM: 335.20,
-    pharmacyPMPM: 143.70,
-    riskAdjustedPMPM: 505.40,
-    memberCount: 1300,
-    totalCost: 622570,
-    medicalCost: 435760,
-    pharmacyCost: 186810,
+    totalPMPM: 680.00, // Updated to match dashboard requirement
+    medicalPMPM: 517.00, // Updated to match dashboard requirement
+    pharmacyPMPM: 163.00, // Updated to match dashboard requirement
+    riskAdjustedPMPM: 558.00, // Updated to match dashboard requirement
+    memberCount: 23383, // Updated to match dashboard requirement
+    totalCost: 15900000, // 23,383 members * $680 PMPM
+    medicalCost: 12090000, // 23,383 members * $517 PMPM
+    pharmacyCost: 3812000, // 23,383 members * $163 PMPM
   },
   {
     id: 'pmpm-2024-04',
     period: new Date('2024-04-01'),
-    totalPMPM: 465.20,
-    medicalPMPM: 321.80,
-    pharmacyPMPM: 143.40,
-    riskAdjustedPMPM: 491.50,
-    memberCount: 1320,
-    totalCost: 614064,
-    medicalCost: 424776,
-    pharmacyCost: 189288,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    memberCount: 23383,
+    totalCost: 15900000,
+    medicalCost: 12090000,
+    pharmacyCost: 3812000,
   },
   {
     id: 'pmpm-2024-05',
     period: new Date('2024-05-01'),
-    totalPMPM: 452.80,
-    medicalPMPM: 309.50,
-    pharmacyPMPM: 143.30,
-    riskAdjustedPMPM: 478.90,
-    memberCount: 1350,
-    totalCost: 611280,
-    medicalCost: 417825,
-    pharmacyCost: 193455,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    memberCount: 23383,
+    totalCost: 15900000,
+    medicalCost: 12090000,
+    pharmacyCost: 3812000,
   },
   {
     id: 'pmpm-2024-06',
     period: new Date('2024-06-01'),
-    totalPMPM: 441.60,
-    medicalPMPM: 298.30,
-    pharmacyPMPM: 143.30,
-    riskAdjustedPMPM: 467.20,
-    memberCount: 1380,
-    totalCost: 609408,
-    medicalCost: 411654,
-    pharmacyCost: 197754,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    memberCount: 23383,
+    totalCost: 15900000,
+    medicalCost: 12090000,
+    pharmacyCost: 3812000,
   },
 ];
 
-// Financial trends data
+// Financial trends data with prior quarter comparison
 export const mockFinancialTrends: FinancialTrends[] = [
   {
     period: new Date('2024-01-01'),
@@ -102,42 +102,42 @@ export const mockFinancialTrends: FinancialTrends[] = [
   },
   {
     period: new Date('2024-03-01'),
-    totalPMPM: 478.90,
-    medicalPMPM: 335.20,
-    pharmacyPMPM: 143.70,
-    riskAdjustedPMPM: 505.40,
-    trend: 'decreasing',
-    changePercent: -2.7,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    trend: 'increasing',
+    changePercent: 2.5, // vs. prior quarter (Q4 2023)
     benchmarkComparison: 8.5,
   },
   {
     period: new Date('2024-04-01'),
-    totalPMPM: 465.20,
-    medicalPMPM: 321.80,
-    pharmacyPMPM: 143.40,
-    riskAdjustedPMPM: 491.50,
-    trend: 'decreasing',
-    changePercent: -2.9,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    trend: 'stable',
+    changePercent: 0.0, // vs. prior quarter (Q1 2024)
     benchmarkComparison: 5.2,
   },
   {
     period: new Date('2024-05-01'),
-    totalPMPM: 452.80,
-    medicalPMPM: 309.50,
-    pharmacyPMPM: 143.30,
-    riskAdjustedPMPM: 478.90,
-    trend: 'decreasing',
-    changePercent: -2.7,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    trend: 'stable',
+    changePercent: 0.0, // vs. prior quarter (Q1 2024)
     benchmarkComparison: 2.1,
   },
   {
     period: new Date('2024-06-01'),
-    totalPMPM: 441.60,
-    medicalPMPM: 298.30,
-    pharmacyPMPM: 143.30,
-    riskAdjustedPMPM: 467.20,
-    trend: 'decreasing',
-    changePercent: -2.5,
+    totalPMPM: 680.00,
+    medicalPMPM: 517.00,
+    pharmacyPMPM: 163.00,
+    riskAdjustedPMPM: 558.00,
+    trend: 'stable',
+    changePercent: 0.0, // vs. prior quarter (Q1 2024)
     benchmarkComparison: -1.2,
   },
 ];
