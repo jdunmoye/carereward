@@ -63,7 +63,7 @@ export const mockCostMetrics: CostMetrics = {
   riskAdjustedPMPM: 558.00,
   medicalPMPM: 517.00,
   pharmacyPMPM: 163.00,
-  totalPoolSpending: 15900000, // 23,383 members * $680 PMPM
+  totalPoolSpending: 47701320, // Updated total pool spending
   riskScore: 1.2,
   activeMembership: 23383,
   period: 'Last 3 Months',
@@ -191,71 +191,47 @@ export const mockCurrentSituationAgeDistribution: AgeGroupData[] = [
   },
 ];
 
-// Mock Geographic Distribution Data
+// Mock Geographic Distribution Data - NYC Boroughs
 export const mockCurrentSituationGeographicDistribution: GeographicData[] = [
   {
-    location: 'New York',
+    location: 'Manhattan',
     state: 'NY',
-    memberCount: 2850,
-    chronicConditionRate: 32.5,
+    memberCount: 4850,
+    chronicConditionRate: 28.5,
     averagePMPM: 425.80,
     topConditions: ['Hypertension', 'Diabetes', 'High Cholesterol'],
   },
   {
-    location: 'Los Angeles',
-    state: 'CA',
-    memberCount: 3200,
-    chronicConditionRate: 28.7,
+    location: 'Brooklyn',
+    state: 'NY',
+    memberCount: 6200,
+    chronicConditionRate: 32.7,
     averagePMPM: 385.20,
     topConditions: ['Hypertension', 'Diabetes', 'Depression'],
   },
   {
-    location: 'Chicago',
-    state: 'IL',
-    memberCount: 1850,
+    location: 'Queens',
+    state: 'NY',
+    memberCount: 4850,
     chronicConditionRate: 35.2,
     averagePMPM: 445.60,
     topConditions: ['Hypertension', 'CHF', 'COPD'],
   },
   {
-    location: 'Houston',
-    state: 'TX',
-    memberCount: 2200,
+    location: 'Bronx',
+    state: 'NY',
+    memberCount: 3200,
     chronicConditionRate: 38.8,
     averagePMPM: 465.40,
     topConditions: ['Diabetes', 'Hypertension', 'CKD'],
   },
   {
-    location: 'Phoenix',
-    state: 'AZ',
+    location: 'Staten Island',
+    state: 'NY',
     memberCount: 1650,
     chronicConditionRate: 31.5,
     averagePMPM: 395.80,
     topConditions: ['Hypertension', 'Diabetes', 'High Cholesterol'],
-  },
-  {
-    location: 'Philadelphia',
-    state: 'PA',
-    memberCount: 1450,
-    chronicConditionRate: 33.8,
-    averagePMPM: 415.20,
-    topConditions: ['Hypertension', 'CHF', 'COPD'],
-  },
-  {
-    location: 'San Antonio',
-    state: 'TX',
-    memberCount: 1200,
-    chronicConditionRate: 36.5,
-    averagePMPM: 425.60,
-    topConditions: ['Diabetes', 'Hypertension', 'CKD'],
-  },
-  {
-    location: 'San Diego',
-    state: 'CA',
-    memberCount: 1100,
-    chronicConditionRate: 29.2,
-    averagePMPM: 375.40,
-    topConditions: ['Hypertension', 'Diabetes', 'Depression'],
   },
 ];
 

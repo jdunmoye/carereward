@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Badge } from '../components/ui/Badge';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import NYCMap from '../components/NYCMap';
+import NYCMapFallback from '../components/NYCMapFallback';
+
 import { 
   DollarSign, 
   TrendingUp, 
@@ -17,27 +19,38 @@ import {
   Home,
   ChevronRight,
   FileText,
-  Filter
+  Filter,
+  ChevronDown
 } from 'lucide-react';
-import { 
-  mockCurrentSituationData,
-  mockCurrentSituationChronicConditions,
-  mockCurrentSituationAgeDistribution,
-  mockCurrentSituationGeographicDistribution,
-  mockCurrentSituationCostDrivers
-} from '../data/currentSituation';
+// Note: Using borough-specific data instead of mock data
+import { boroughData, BoroughData } from '../data/boroughData';
+
+// NYC Interactive Map Wrapper Component with fallback
+const NYCInteractiveMap: React.FC<{ geographicData: any[] }> = ({ geographicData }) => {
+  // Try to render the Leaflet map, fallback to SVG if it fails
+  try {
+    return <NYCMap geographicData={geographicData} />;
+  } catch (error) {
+    console.warn('Leaflet map failed to load, using fallback:', error);
+    return <NYCMapFallback geographicData={geographicData} />;
+  }
+};
 
 const CurrentSituation: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Last 3 Months');
+  const [comparisonType, setComparisonType] = useState('Last year same quarter');
+  const [selectedBorough, setSelectedBorough] = useState('New York');
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const { isDark, toggleTheme } = useTheme();
 
-  const { costMetrics } = mockCurrentSituationData;
-  const chronicConditions = mockCurrentSituationChronicConditions;
-  const ageDistribution = mockCurrentSituationAgeDistribution;
-  const geographicDistribution = mockCurrentSituationGeographicDistribution;
-  const costDrivers = mockCurrentSituationCostDrivers;
+  // Get data for selected borough
+  const currentBoroughData: BoroughData = boroughData[selectedBorough];
+  const { costMetrics } = currentBoroughData;
+  const chronicConditions = currentBoroughData.chronicConditions;
+  const ageDistribution = currentBoroughData.ageDistribution;
+  const geographicDistribution = currentBoroughData.geographicDistribution;
+  const costDrivers = currentBoroughData.costDrivers;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -69,16 +82,6 @@ const CurrentSituation: React.FC = () => {
     return trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-500';
   };
 
-  const getImpactColor = (impact: 'high' | 'medium' | 'low') => {
-    switch (impact) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default:
-        return 'bg-green-100 text-green-800 border-green-200';
-    }
-  };
 
   const handleRefresh = () => {
     setLoading(true);
@@ -113,14 +116,41 @@ const CurrentSituation: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Current Situation Overview</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Current Situation Overview
+            {selectedBorough !== 'New York' && (
+              <span className="text-xl text-green-600 dark:text-green-400 ml-3">
+                - {selectedBorough}
+              </span>
+            )}
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Comprehensive analysis of current cost drivers and member health status
+            {selectedBorough !== 'New York' && ` for ${selectedBorough}`}
           </p>
         </div>
         
         {/* Controls */}
         <div className="flex items-center gap-4">
+          {/* Borough Selector Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedBorough}
+              onChange={(e) => setSelectedBorough(e.target.value)}
+              className="px-4 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none pr-8"
+            >
+              <option value="New York">New York (All Boroughs)</option>
+              <option value="Manhattan">Manhattan</option>
+              <option value="Brooklyn">Brooklyn</option>
+              <option value="Queens">Queens</option>
+              <option value="Bronx">Bronx</option>
+              <option value="Staten Island">Staten Island</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+
           {/* Period Selector Dropdown */}
           <div className="relative">
             <select
@@ -132,6 +162,23 @@ const CurrentSituation: React.FC = () => {
               <option value="Last 12 Months">Last 12 Months</option>
               <option value="Last 6 Months">Last 6 Months</option>
               <option value="Last 3 Months">Last 3 Months</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+          
+          {/* Comparison Toggle */}
+          <div className="relative">
+            <select
+              value={comparisonType}
+              onChange={(e) => setComparisonType(e.target.value)}
+              className="px-4 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none pr-8"
+            >
+              <option value="Last year same quarter">Last year same quarter</option>
+              <option value="Prior period">Prior period</option>
+              <option value="Benchmark">Benchmark</option>
+              <option value="Target">Target</option>
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
               <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +242,14 @@ const CurrentSituation: React.FC = () => {
       {/* Key Metrics Dashboard Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Key Cost Metrics</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Key Cost Metrics
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600 dark:text-gray-400">Last updated: {lastRefresh.toLocaleString()}</span>
@@ -322,35 +376,6 @@ const CurrentSituation: React.FC = () => {
           <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-lg bg-green-100 dark:bg-green-800/30">
-                <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-medium text-red-600 dark:text-red-400">
-                  +3.2%
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  ↑ vs prev
-                </div>
-              </div>
-            </div>
-            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Total Pool Spending</h3>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(costMetrics.totalPoolSpending)}</p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total spending for selected period</p>
-            <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500 dark:text-gray-400">Period:</span>
-                <span className="text-gray-700 dark:text-gray-300">{selectedPeriod}</span>
-              </div>
-              <div className="flex justify-between text-xs mt-1">
-                <span className="text-gray-500 dark:text-gray-400">Members:</span>
-                <span className="text-green-600 dark:text-green-400 font-medium">{formatNumber(costMetrics.activeMembership)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-lg bg-green-100 dark:bg-green-800/30">
                 <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="text-right">
@@ -376,13 +401,49 @@ const CurrentSituation: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <div className="p-6 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-lg bg-green-100 dark:bg-green-800/30">
+                <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-red-600 dark:text-red-400">
+                  +3.2%
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ↑ vs prev
+                </div>
+              </div>
+            </div>
+            <h3 className="font-medium text-green-700 dark:text-green-300 mb-1">Total Pool Spending</h3>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(costMetrics.totalPoolSpending)}</p>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total spending for selected period</p>
+            <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500 dark:text-gray-400">Period:</span>
+                <span className="text-gray-700 dark:text-gray-300">{selectedPeriod}</span>
+              </div>
+              <div className="flex justify-between text-xs mt-1">
+                <span className="text-gray-500 dark:text-gray-400">Members:</span>
+                <span className="text-green-600 dark:text-green-400 font-medium">{formatNumber(costMetrics.activeMembership)}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Chronic Conditions Analysis Section */}
+      {/* Forward-Looking Predictors Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Chronic Conditions Analysis</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Forward-Looking Predictors
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-4">
             <NavLink 
               to="/clinical-metrics" 
@@ -394,75 +455,82 @@ const CurrentSituation: React.FC = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Chronic Diagnosis Overview */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Chronic Conditions Impact</h3>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Analysis of chronic conditions and their associated PMPM costs
-              </p>
-            </div>
-            <div className="space-y-4">
-              {chronicConditions.map((condition, index) => (
-                <div key={index} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{condition.name}</h4>
-                    <div className="flex items-center gap-2">
-                      {getTrendIcon(condition.trend)}
-                      <span className={`text-sm ${getTrendColor(condition.trend)}`}>
-                        {condition.changePercent > 0 ? '+' : ''}{condition.changePercent}%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span>{condition.frequency}% ({formatNumber(condition.memberCount)} members)</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(condition.pmpmCost)} PMPM</span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500" 
-                      style={{ width: `${Math.min(condition.frequency * 2, 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Age Distribution Analysis */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Age Distribution of Chronic Conditions</h3>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Age Distribution Analysis - Card Layout */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Age Distribution of Chronic Conditions</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                 Chronic condition prevalence and costs by age groups
               </p>
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 flex-1">
               {ageDistribution.map((ageGroup, index) => (
-                <div key={index} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{ageGroup.ageRange} years</h4>
+                <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">{ageGroup.ageRange} years</h4>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatNumber(ageGroup.memberCount)} members</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{formatCurrency(ageGroup.averagePMPM)} PMPM</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100">{formatNumber(ageGroup.memberCount)}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{formatCurrency(ageGroup.averagePMPM)}</p>
                     </div>
                   </div>
-                  <div className="mb-2">
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      <span>Chronic Condition Rate</span>
+                  <div className="mb-2 flex-1">
+                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      <span>Chronic Rate</span>
                       <span>{ageGroup.chronicConditionRate}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                       <div 
-                        className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500" 
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-1.5 rounded-full transition-all duration-500" 
                         style={{ width: `${Math.min(ageGroup.chronicConditionRate * 1.5, 100)}%` }}
                       ></div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">
-                    <span className="font-medium">Top conditions: </span>
-                    {ageGroup.topConditions.join(', ')}
+                    <span className="font-medium">Top: </span>
+                    <span className="truncate block" title={ageGroup.topConditions.slice(0, 2).join(', ')}>
+                      {ageGroup.topConditions.slice(0, 2).join(', ')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Geographic Distribution - Map View - Compact */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">NYC Borough Distribution</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Member distribution and health status across NYC boroughs
+              </p>
+            </div>
+            
+            {/* Interactive NYC Borough Map - Reduced height */}
+            <div className="mb-3 flex-1">
+              <NYCInteractiveMap geographicData={geographicDistribution} />
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              {geographicDistribution.map((location, index) => (
+                <div key={index} className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
+                  <div className="flex items-center gap-1 mb-2">
+                    <MapPin className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0" />
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs truncate">{location.location}</h4>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                      {formatNumber(location.memberCount)}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {formatCurrency(location.averagePMPM)}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {location.chronicConditionRate}% chronic
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={location.topConditions.slice(0, 2).join(', ')}>
+                      {location.topConditions.slice(0, 2).join(', ')}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -471,52 +539,18 @@ const CurrentSituation: React.FC = () => {
         </div>
       </div>
 
-      {/* Geographic Distribution Section */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Geographic Distribution</h2>
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Member Locations and Health Status</h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Geographic analysis of member distribution and chronic condition prevalence
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {geographicDistribution.map((location, index) => (
-              <div key={index} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{location.location}</h4>
-                  <Badge variant="info" className="text-xs">{location.state}</Badge>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Members:</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(location.memberCount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Chronic Rate:</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{location.chronicConditionRate}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Avg PMPM:</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(location.averagePMPM)}</span>
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                    <span className="font-medium">Top: </span>
-                    {location.topConditions.slice(0, 2).join(', ')}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Key Cost Drivers Section */}
+      {/* Analysis Grid Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Key Cost Drivers</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Analysis Overview
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-4">
             <NavLink 
               to="/opportunity-analysis" 
@@ -528,41 +562,201 @@ const CurrentSituation: React.FC = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {costDrivers.map((driver, index) => (
-            <div key={index} className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-green-100 dark:bg-green-800/30">
-                  <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Chronic Conditions */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Chronic Conditions</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Analysis of chronic conditions and their associated PMPM costs
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 flex-1">
+              {chronicConditions.slice(0, 4).map((condition, index) => (
+                <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">{condition.name}</h4>
+                    <div className="flex items-center gap-1">
+                      {getTrendIcon(condition.trend)}
+                      <span className={`text-xs ${getTrendColor(condition.trend)}`}>
+                        {condition.changePercent > 0 ? '+' : ''}{condition.changePercent}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      {condition.frequency}% ({formatNumber(condition.memberCount)})
+                    </div>
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                      {formatCurrency(condition.pmpmCost)} PMPM
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className={`text-sm font-medium ${
-                    driver.changePercent < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {driver.changePercent > 0 ? '+' : ''}{driver.changePercent}%
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {driver.trend === 'down' ? '↓' : '↑'} vs prev
-                  </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
+                <span>View All Conditions</span>
+                <ChevronRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Testing Compliance */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Testing Compliance</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Preventive care and testing compliance rates
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 flex-1">
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Annual Wellness</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+3.5%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 65.2%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 75.0%</div>
                 </div>
               </div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{driver.name}</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{driver.value}</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{driver.unit}</p>
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-500 dark:text-gray-400">Target:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{driver.target} {driver.unit}</span>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">HbA1c Testing</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+2.1%</span>
                 </div>
-                <div className="flex justify-between text-xs mt-1">
-                  <span className="text-gray-500 dark:text-gray-400">Impact:</span>
-                  <span className={`font-medium ${getImpactColor(driver.impact)}`}>
-                    {driver.impact}
-                  </span>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 78.5%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 85.0%</div>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Mammography</h4>
+                  <span className="text-xs text-red-600 dark:text-red-400">-1.2%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 68.3%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 75.0%</div>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Colonoscopy</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+1.8%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 72.1%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 80.0%</div>
                 </div>
               </div>
             </div>
-          ))}
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
+                <span>View All Tests</span>
+                <ChevronRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Cost Drivers Measures */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Cost Drivers Measures</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Key utilization metrics driving healthcare costs
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 flex-1">
+              {costDrivers.slice(0, 4).map((driver, index) => (
+                <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">{driver.name}</h4>
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs ${
+                        driver.changePercent < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {driver.changePercent > 0 ? '+' : ''}{driver.changePercent}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Current: {driver.value} {driver.unit}
+                    </div>
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                      Target: {driver.target} {driver.unit}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
+                <span>View All Drivers</span>
+                <ChevronRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Control Measures */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Control Measures</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Quality and utilization control metrics
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 flex-1">
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Generic Drugs</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+2.3%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 78.5%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 85.0%</div>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Drug Pickup</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+1.8%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 82.3%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 90.0%</div>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Out of Network</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">-1.2%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 12.8%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 10.0%</div>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Care Gap</h4>
+                  <span className="text-xs text-green-600 dark:text-green-400">+4.2%</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 71.5%</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 80.0%</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
+                <span>View All Controls</span>
+                <ChevronRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
