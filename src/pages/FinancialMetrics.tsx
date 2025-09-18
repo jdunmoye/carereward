@@ -1,5 +1,25 @@
-import { DollarSign, Target, RefreshCw, Moon, Sun, Download, FileText, BarChart3, Users, Activity, Heart, Pill, Calendar, Filter, ChevronRight, Home } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { 
+  DollarSign, 
+  Target, 
+  RefreshCw, 
+  Moon, 
+  Sun, 
+  Download, 
+  FileText, 
+  BarChart3, 
+  Users, 
+  Activity, 
+  Heart, 
+  Pill, 
+  Calendar, 
+  Filter, 
+  ChevronRight, 
+  Home,
+  ChevronDown
+} from 'lucide-react';
 import { 
   LineChart, 
   Line, 
@@ -14,96 +34,129 @@ import {
   Legend, 
   ResponsiveContainer
 } from 'recharts';
-import { NavLink } from 'react-router-dom';
+import { boroughData, BoroughData } from '../data/boroughData';
 
-const FinancialMetrics = () => {
-  const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('6m');
+const FinancialMetrics: React.FC = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('Last 3 Months');
+  const [comparisonType, setComparisonType] = useState('Last year same quarter');
+  const [selectedBorough, setSelectedBorough] = useState('New York');
+  const [lastRefresh, setLastRefresh] = useState(new Date());
   const [loading, setLoading] = useState(false);
-  const [isDark, setIsDark] = useState(false); // Default to light mode
   const [selectedMetric, setSelectedMetric] = useState<string>('all');
   const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('line');
+  const { isDark, toggleTheme } = useTheme();
+
+  // Get data for selected borough
+  const currentBoroughData: BoroughData = boroughData[selectedBorough];
+  const { costMetrics } = currentBoroughData;
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
   
-  // PMPM Dashboard Data
+  // PMPM Dashboard Data - Dynamic based on selected borough
   const pmpmData = [
     {
       title: 'Total Cost of Care PMPM',
-      value: '$485.32',
-      change: '-3.2%',
-      changeType: 'positive' as const,
+      value: formatCurrency(costMetrics.currentCostOfCarePMPM),
+      change: '+2.3%',
+      changeType: 'negative' as const,
       icon: DollarSign,
       description: 'Per Member Per Month total cost',
-      trend: 'down',
+      trend: 'up' as const,
       benchmark: '$520.00',
       percentile: 75
     },
     {
       title: 'Risk Adjusted PMPM',
-      value: '$412.18',
-      change: '-5.1%',
-      changeType: 'positive' as const,
+      value: formatCurrency(costMetrics.riskAdjustedPMPM),
+      change: '+1.8%',
+      changeType: 'negative' as const,
       icon: Target,
       description: 'Risk-adjusted cost per member',
-      trend: 'down',
+      trend: 'up' as const,
       benchmark: '$450.00',
       percentile: 80
     },
     {
       title: 'Medical PMPM (Mx)',
-      value: '$298.45',
-      change: '-2.8%',
-      changeType: 'positive' as const,
+      value: formatCurrency(costMetrics.medicalPMPM),
+      change: '+2.1%',
+      changeType: 'negative' as const,
       icon: Heart,
       description: 'Medical services cost per member',
-      trend: 'down',
+      trend: 'up' as const,
       benchmark: '$320.00',
       percentile: 70
     },
     {
       title: 'Pharmacy PMPM (Rx)',
-      value: '$186.87',
-      change: '-4.5%',
+      value: formatCurrency(costMetrics.pharmacyPMPM),
+      change: '-0.8%',
       changeType: 'positive' as const,
       icon: Pill,
       description: 'Pharmacy cost per member',
-      trend: 'down',
+      trend: 'down' as const,
       benchmark: '$200.00',
       percentile: 85
     },
+    {
+      title: 'Total Pool Spending',
+      value: formatCurrency(costMetrics.totalPoolSpending),
+      change: '+3.2%',
+      changeType: 'negative' as const,
+      icon: DollarSign,
+      description: 'Total spending for selected period',
+      trend: 'up' as const,
+      benchmark: formatCurrency(costMetrics.activeMembership * 520),
+      percentile: 75
+    },
   ];
 
-  // Historical PMPM Trends Data (12 months)
+  // Historical PMPM Trends Data (12 months) - Dynamic based on borough
+  const baseMultiplier = selectedBorough === 'New York' ? 1 : 
+    selectedBorough === 'Manhattan' ? 1.1 : 
+    selectedBorough === 'Brooklyn' ? 0.92 : 
+    selectedBorough === 'Queens' ? 0.86 : 
+    selectedBorough === 'Bronx' ? 1.07 : 0.8; // Staten Island
+
   const historicalTrendsData = [
-    { month: 'Jan', totalPMPM: 520, riskAdjusted: 450, medical: 320, pharmacy: 200 },
-    { month: 'Feb', totalPMPM: 515, riskAdjusted: 445, medical: 318, pharmacy: 197 },
-    { month: 'Mar', totalPMPM: 510, riskAdjusted: 440, medical: 315, pharmacy: 195 },
-    { month: 'Apr', totalPMPM: 505, riskAdjusted: 435, medical: 312, pharmacy: 193 },
-    { month: 'May', totalPMPM: 500, riskAdjusted: 430, medical: 310, pharmacy: 190 },
-    { month: 'Jun', totalPMPM: 495, riskAdjusted: 425, medical: 308, pharmacy: 187 },
-    { month: 'Jul', totalPMPM: 490, riskAdjusted: 420, medical: 305, pharmacy: 185 },
-    { month: 'Aug', totalPMPM: 488, riskAdjusted: 418, medical: 303, pharmacy: 185 },
-    { month: 'Sep', totalPMPM: 485, riskAdjusted: 415, medical: 300, pharmacy: 185 },
-    { month: 'Oct', totalPMPM: 483, riskAdjusted: 413, medical: 299, pharmacy: 184 },
-    { month: 'Nov', totalPMPM: 484, riskAdjusted: 414, medical: 299, pharmacy: 185 },
-    { month: 'Dec', totalPMPM: 485, riskAdjusted: 412, medical: 298, pharmacy: 187 },
+    { month: 'Jan', totalPMPM: Math.round(520 * baseMultiplier), riskAdjusted: Math.round(450 * baseMultiplier), medical: Math.round(320 * baseMultiplier), pharmacy: Math.round(200 * baseMultiplier) },
+    { month: 'Feb', totalPMPM: Math.round(515 * baseMultiplier), riskAdjusted: Math.round(445 * baseMultiplier), medical: Math.round(318 * baseMultiplier), pharmacy: Math.round(197 * baseMultiplier) },
+    { month: 'Mar', totalPMPM: Math.round(510 * baseMultiplier), riskAdjusted: Math.round(440 * baseMultiplier), medical: Math.round(315 * baseMultiplier), pharmacy: Math.round(195 * baseMultiplier) },
+    { month: 'Apr', totalPMPM: Math.round(505 * baseMultiplier), riskAdjusted: Math.round(435 * baseMultiplier), medical: Math.round(312 * baseMultiplier), pharmacy: Math.round(193 * baseMultiplier) },
+    { month: 'May', totalPMPM: Math.round(500 * baseMultiplier), riskAdjusted: Math.round(430 * baseMultiplier), medical: Math.round(310 * baseMultiplier), pharmacy: Math.round(190 * baseMultiplier) },
+    { month: 'Jun', totalPMPM: Math.round(495 * baseMultiplier), riskAdjusted: Math.round(425 * baseMultiplier), medical: Math.round(308 * baseMultiplier), pharmacy: Math.round(187 * baseMultiplier) },
+    { month: 'Jul', totalPMPM: Math.round(490 * baseMultiplier), riskAdjusted: Math.round(420 * baseMultiplier), medical: Math.round(305 * baseMultiplier), pharmacy: Math.round(185 * baseMultiplier) },
+    { month: 'Aug', totalPMPM: Math.round(488 * baseMultiplier), riskAdjusted: Math.round(418 * baseMultiplier), medical: Math.round(303 * baseMultiplier), pharmacy: Math.round(185 * baseMultiplier) },
+    { month: 'Sep', totalPMPM: Math.round(485 * baseMultiplier), riskAdjusted: Math.round(415 * baseMultiplier), medical: Math.round(300 * baseMultiplier), pharmacy: Math.round(185 * baseMultiplier) },
+    { month: 'Oct', totalPMPM: Math.round(483 * baseMultiplier), riskAdjusted: Math.round(413 * baseMultiplier), medical: Math.round(299 * baseMultiplier), pharmacy: Math.round(184 * baseMultiplier) },
+    { month: 'Nov', totalPMPM: Math.round(484 * baseMultiplier), riskAdjusted: Math.round(414 * baseMultiplier), medical: Math.round(299 * baseMultiplier), pharmacy: Math.round(185 * baseMultiplier) },
+    { month: 'Dec', totalPMPM: Math.round(costMetrics.currentCostOfCarePMPM), riskAdjusted: Math.round(costMetrics.riskAdjustedPMPM), medical: Math.round(costMetrics.medicalPMPM), pharmacy: Math.round(costMetrics.pharmacyPMPM) },
   ];
 
-  // Benchmark Comparison Data
+  // Benchmark Comparison Data - Dynamic based on borough
   const benchmarkData = [
-    { metric: 'Total PMPM', current: 485, benchmark: 520, industry: 550, percentile: 75 },
-    { metric: 'Risk Adjusted', current: 412, benchmark: 450, industry: 480, percentile: 80 },
-    { metric: 'Medical PMPM', current: 298, benchmark: 320, industry: 340, percentile: 70 },
-    { metric: 'Pharmacy PMPM', current: 187, benchmark: 200, industry: 220, percentile: 85 },
+    { metric: 'Total PMPM', current: Math.round(costMetrics.currentCostOfCarePMPM), benchmark: 520, industry: 550, percentile: 75 },
+    { metric: 'Risk Adjusted', current: Math.round(costMetrics.riskAdjustedPMPM), benchmark: 450, industry: 480, percentile: 80 },
+    { metric: 'Medical PMPM', current: Math.round(costMetrics.medicalPMPM), benchmark: 320, industry: 340, percentile: 70 },
+    { metric: 'Pharmacy PMPM', current: Math.round(costMetrics.pharmacyPMPM), benchmark: 200, industry: 220, percentile: 85 },
   ];
 
-  // Key Cost Drivers Data
+  // Key Cost Drivers Data - Dynamic based on borough
   const costDriversData = [
     {
       metric: 'Admissions per 1000',
-      current: 45.2,
+      current: currentBoroughData.costDrivers[0]?.value || 45.2,
       previous: 48.1,
-      change: -6.0,
-      benchmark: 50.0,
-      trend: 'down',
+      change: currentBoroughData.costDrivers[0]?.changePercent || -6.0,
+      benchmark: currentBoroughData.costDrivers[0]?.target || 50.0,
+      trend: 'down' as const,
       icon: Activity,
       description: 'Hospital admissions per 1000 members'
     },
@@ -113,17 +166,17 @@ const FinancialMetrics = () => {
       previous: 9.2,
       change: -9.8,
       benchmark: 12.0,
-      trend: 'down',
+      trend: 'down' as const,
       icon: Target,
       description: 'Preventable hospital admissions'
     },
     {
       metric: 'ED Visits per 1000',
-      current: 125.4,
+      current: currentBoroughData.costDrivers[0]?.value || 125.4,
       previous: 128.7,
-      change: -2.6,
-      benchmark: 140.0,
-      trend: 'down',
+      change: currentBoroughData.costDrivers[0]?.changePercent || -2.6,
+      benchmark: currentBoroughData.costDrivers[0]?.target || 140.0,
+      trend: 'down' as const,
       icon: Heart,
       description: 'Emergency department visits'
     },
@@ -133,7 +186,7 @@ const FinancialMetrics = () => {
       previous: 20.1,
       change: -7.5,
       benchmark: 25.0,
-      trend: 'down',
+      trend: 'down' as const,
       icon: Target,
       description: 'Avoidable emergency visits'
     },
@@ -143,7 +196,7 @@ const FinancialMetrics = () => {
       previous: 76.2,
       change: 3.0,
       benchmark: 75.0,
-      trend: 'up',
+      trend: 'up' as const,
       icon: Pill,
       description: 'Percentage of generic prescriptions'
     },
@@ -153,7 +206,7 @@ const FinancialMetrics = () => {
       previous: 87.8,
       change: 1.6,
       benchmark: 85.0,
-      trend: 'up',
+      trend: 'up' as const,
       icon: Pill,
       description: 'Medication adherence rate'
     },
@@ -163,7 +216,7 @@ const FinancialMetrics = () => {
       previous: 69.8,
       change: 3.6,
       benchmark: 70.0,
-      trend: 'up',
+      trend: 'up' as const,
       icon: Calendar,
       description: 'Preventive care participation'
     },
@@ -173,7 +226,7 @@ const FinancialMetrics = () => {
       previous: 6.1,
       change: -14.8,
       benchmark: 8.0,
-      trend: 'down',
+      trend: 'down' as const,
       icon: Users,
       description: 'Out-of-network service usage'
     },
@@ -181,7 +234,10 @@ const FinancialMetrics = () => {
 
   const handleRefresh = () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => {
+      setLoading(false);
+      setLastRefresh(new Date());
+    }, 1000);
   };
 
   // Export functionality
@@ -212,7 +268,7 @@ const FinancialMetrics = () => {
       month: item.month,
       [selectedMetric]: item[selectedMetric as keyof typeof item]
     }));
-  }, [selectedMetric]);
+  }, [selectedMetric, historicalTrendsData]);
 
 
   return (
@@ -230,46 +286,73 @@ const FinancialMetrics = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Financial Metrics</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Financial Metrics
+            {selectedBorough !== 'New York' && (
+              <span className="text-xl text-green-600 dark:text-green-400 ml-3">
+                - {selectedBorough}
+              </span>
+            )}
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Comprehensive PMPM analysis and cost driver insights
+            {selectedBorough !== 'New York' && ` for ${selectedBorough}`}
           </p>
         </div>
         
         {/* Controls */}
         <div className="flex items-center gap-4">
-          {/* Date Range Selector */}
-          <div className="flex bg-white dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
-            {(['1m', '3m', '6m', '1y'] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setDateRange(range)}
-                className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                  dateRange === range
-                    ? "bg-green-500 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                }`}
-              >
-                {range.toUpperCase()}
-              </button>
-            ))}
+          {/* Borough Selector Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedBorough}
+              onChange={(e) => setSelectedBorough(e.target.value)}
+              className="px-4 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none pr-8"
+            >
+              <option value="New York">New York (All Boroughs)</option>
+              <option value="Manhattan">Manhattan</option>
+              <option value="Brooklyn">Brooklyn</option>
+              <option value="Queens">Queens</option>
+              <option value="Bronx">Bronx</option>
+              <option value="Staten Island">Staten Island</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Period Selector Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="px-4 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none pr-8"
+            >
+              <option value="Year to Date">Year to Date</option>
+              <option value="Last 12 Months">Last 12 Months</option>
+              <option value="Last 6 Months">Last 6 Months</option>
+              <option value="Last 3 Months">Last 3 Months</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
           </div>
           
-          {/* Chart Type Selector */}
-          <div className="flex bg-white dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
-            {(['line', 'area', 'bar'] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => setChartType(type)}
-                className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 capitalize ${
-                  chartType === type
-                    ? "bg-green-500 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
+          {/* Comparison Toggle */}
+          <div className="relative">
+            <select
+              value={comparisonType}
+              onChange={(e) => setComparisonType(e.target.value)}
+              className="px-4 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none pr-8"
+            >
+              <option value="Last year same quarter">Last year same quarter</option>
+              <option value="Prior period">Prior period</option>
+              <option value="Benchmark">Benchmark</option>
+              <option value="Target">Target</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
           </div>
           
           {/* Refresh Button */}
@@ -284,7 +367,7 @@ const FinancialMetrics = () => {
           
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setIsDark(!isDark)}
+            onClick={toggleTheme}
             className="p-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
@@ -327,24 +410,21 @@ const FinancialMetrics = () => {
       {/* PMPM Dashboard Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">PMPM Dashboard</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            PMPM Dashboard
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
-            <select
-              value={selectedMetric}
-              onChange={(e) => setSelectedMetric(e.target.value)}
-              className="px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            >
-              <option value="all">All Metrics</option>
-              <option value="totalPMPM">Total PMPM</option>
-              <option value="riskAdjusted">Risk Adjusted</option>
-              <option value="medical">Medical PMPM</option>
-              <option value="pharmacy">Pharmacy PMPM</option>
-            </select>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Last updated: {lastRefresh.toLocaleString()}</span>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {pmpmData.map((metric) => {
             const IconComponent = metric.icon;
             return (
@@ -385,7 +465,45 @@ const FinancialMetrics = () => {
 
       {/* Historical Trends Section */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Historical Trends</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Historical Trends
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
+          <div className="flex items-center gap-4">
+            {/* Chart Type Selector */}
+            <div className="flex bg-white dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
+              {(['line', 'area', 'bar'] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setChartType(type)}
+                  className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 capitalize ${
+                    chartType === type
+                      ? "bg-green-500 text-white shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            <select
+              value={selectedMetric}
+              onChange={(e) => setSelectedMetric(e.target.value)}
+              className="px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value="all">All Metrics</option>
+              <option value="totalPMPM">Total PMPM</option>
+              <option value="riskAdjusted">Risk Adjusted</option>
+              <option value="medical">Medical PMPM</option>
+              <option value="pharmacy">Pharmacy PMPM</option>
+            </select>
+          </div>
+        </div>
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">PMPM Trends (12 Months)</h3>
@@ -494,7 +612,25 @@ const FinancialMetrics = () => {
 
       {/* Benchmark Comparisons Section */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Benchmark Comparisons</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Benchmark Comparisons
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
+          <div className="flex items-center gap-4">
+            <NavLink 
+              to="/opportunity-analysis" 
+              className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center"
+            >
+              View Opportunity Analysis
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </NavLink>
+          </div>
+        </div>
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Industry Benchmark Analysis</h3>
@@ -550,7 +686,14 @@ const FinancialMetrics = () => {
       {/* Key Cost Drivers Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Key Cost Drivers</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Key Cost Drivers
+            {selectedBorough !== 'New York' && (
+              <span className="text-lg text-green-600 dark:text-green-400 ml-2">
+                - {selectedBorough}
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-4">
             <NavLink 
               to="/opportunity-analysis" 
