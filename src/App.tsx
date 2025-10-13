@@ -7,7 +7,8 @@ import ClinicalMetrics from './pages/ClinicalMetrics';
 import BehaviorDrivers from './pages/BehaviorDrivers';
 import OpportunityAnalysis from './pages/OpportunityAnalysis';
 import RewardSystem from './pages/RewardSystem';
-import SuccessStories from './pages/SuccessStories';
+import UseCases from './pages/UseCases';
+import UseCaseDetails from './components/UseCaseDetails';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
 import DemoOne from './demo';
@@ -29,7 +30,8 @@ function App() {
               <Route path="/behavior-drivers" element={<BehaviorDrivers />} />
               <Route path="/opportunity-analysis" element={<OpportunityAnalysis />} />
               <Route path="/reward-system" element={<RewardSystem />} />
-              <Route path="/success-stories" element={<SuccessStories />} />
+              <Route path="/use-cases" element={<UseCases />} />
+              <Route path="/use-cases/:id" element={<UseCaseDetails />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/reports" element={<Reports />} />
             </Routes>

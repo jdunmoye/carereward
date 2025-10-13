@@ -73,7 +73,7 @@ export const ROUTES = {
   behavior: '/behavior-drivers',
   opportunity: '/opportunity-analysis',
   rewards: '/reward-system',
-  stories: '/success-stories',
+  stories: '/use-cases',
   reports: '/reports',
   settings: '/settings',
 };

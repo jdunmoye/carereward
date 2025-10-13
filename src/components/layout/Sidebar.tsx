@@ -143,10 +143,10 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
           />
         </NavLink>
-        <NavLink to="/success-stories" className="block">
+        <NavLink to="/use-cases" className="block">
           <Option
             Icon={Star}
-            title="Success Stories"
+            title="Use Cases"
             selected={selected}
             setSelected={setSelected}
             open={open}

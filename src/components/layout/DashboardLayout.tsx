@@ -32,8 +32,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       setSelected('Opportunity Analysis');
     } else if (path === '/reports') {
       setSelected('Reports');
-    } else if (path === '/success-stories') {
-      setSelected('Success Stories');
+    } else if (path === '/use-cases') {
+      setSelected('Use Cases');
     } else if (path === '/settings') {
       setSelected('Settings');
     } else if (path === '/help') {

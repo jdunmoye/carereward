@@ -157,10 +157,10 @@ const Sidebar = () => {
             open={open}
           />
         </NavLink>
-        <NavLink to="/success-stories" className="block">
+        <NavLink to="/use-cases" className="block">
           <Option
             Icon={Star}
-            title="Success Stories"
+            title="Use Cases"
             selected={selected}
             setSelected={setSelected}
             open={open}
@@ -818,7 +818,7 @@ const ExampleContent = ({
               {[
                 { label: 'Reward System', icon: Award, href: '/reward-system', description: 'Points, incentives, and engagement' },
                 { label: 'Opportunity Analysis', icon: Target, href: '/opportunity-analysis', description: 'Cost savings and improvements' },
-                { label: 'Success Stories', icon: Star, href: '/success-stories', description: 'Case studies and outcomes' },
+                { label: 'Use Cases', icon: Star, href: '/use-cases', description: 'Patient success stories and outcomes' },
               ].map((item) => (
                 <NavLink
                   key={item.label}

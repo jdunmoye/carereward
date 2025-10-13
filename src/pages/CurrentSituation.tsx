@@ -42,6 +42,9 @@ const CurrentSituation: React.FC = () => {
   const [selectedBorough, setSelectedBorough] = useState('New York');
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [loading, setLoading] = useState(false);
+  const [showAllChronicConditions, setShowAllChronicConditions] = useState(false);
+  const [showAllTestingCompliance, setShowAllTestingCompliance] = useState(false);
+  const [showAllUtilizationDrivers, setShowAllUtilizationDrivers] = useState(false);
   const { isDark, toggleTheme } = useTheme();
 
   // Get data for selected borough
@@ -50,7 +53,8 @@ const CurrentSituation: React.FC = () => {
   const chronicConditions = currentBoroughData.chronicConditions;
   const ageDistribution = currentBoroughData.ageDistribution;
   const geographicDistribution = currentBoroughData.geographicDistribution;
-  const costDrivers = currentBoroughData.costDrivers;
+  const utilizationCostDrivers = currentBoroughData.utilizationCostDrivers;
+  const testingCompliance = currentBoroughData.testingCompliance;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -572,10 +576,17 @@ const CurrentSituation: React.FC = () => {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 flex-1">
-              {chronicConditions.slice(0, 4).map((condition, index) => (
+              {(showAllChronicConditions ? chronicConditions : chronicConditions.slice(0, 4)).map((condition, index) => (
                 <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">{condition.name}</h4>
+                    <div className="relative group">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs cursor-help">
+                        {condition.abbreviation}
+                      </h4>
+                      <div className="absolute bottom-full left-0 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                        {condition.name}
+                      </div>
+                    </div>
                     <div className="flex items-center gap-1">
                       {getTrendIcon(condition.trend)}
                       <span className={`text-xs ${getTrendColor(condition.trend)}`}>
@@ -595,9 +606,12 @@ const CurrentSituation: React.FC = () => {
               ))}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
-                <span>View All Conditions</span>
-                <ChevronRight className="h-3 w-3" />
+              <button 
+                onClick={() => setShowAllChronicConditions(!showAllChronicConditions)}
+                className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1"
+              >
+                <span>{showAllChronicConditions ? 'Show Less' : 'View All Conditions'}</span>
+                <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${showAllChronicConditions ? 'rotate-90' : ''}`} />
               </button>
             </div>
           </div>
@@ -611,65 +625,49 @@ const CurrentSituation: React.FC = () => {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 flex-1">
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Annual Wellness</h4>
-                  <span className="text-xs text-green-600 dark:text-green-400">+3.5%</span>
+              {(showAllTestingCompliance ? testingCompliance : testingCompliance.slice(0, 4)).map((test, index) => (
+                <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="relative group">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs cursor-help">
+                        {test.shortName}
+                      </h4>
+                      <div className="absolute bottom-full left-0 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 max-w-xs">
+                        {test.fullName}
+                      </div>
+                    </div>
+                    <span className={`text-xs ${test.changePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {test.changePercent >= 0 ? '+' : ''}{test.changePercent}%
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: {test.currentRate}%</div>
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: {test.targetRate}%</div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 65.2%</div>
-                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 75.0%</div>
-                </div>
-              </div>
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">HbA1c Testing</h4>
-                  <span className="text-xs text-green-600 dark:text-green-400">+2.1%</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 78.5%</div>
-                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 85.0%</div>
-                </div>
-              </div>
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Mammography</h4>
-                  <span className="text-xs text-red-600 dark:text-red-400">-1.2%</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 68.3%</div>
-                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 75.0%</div>
-                </div>
-              </div>
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">Colonoscopy</h4>
-                  <span className="text-xs text-green-600 dark:text-green-400">+1.8%</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current: 72.1%</div>
-                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">Target: 80.0%</div>
-                </div>
-              </div>
+              ))}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
-                <span>View All Tests</span>
-                <ChevronRight className="h-3 w-3" />
+              <button 
+                onClick={() => setShowAllTestingCompliance(!showAllTestingCompliance)}
+                className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1"
+              >
+                <span>{showAllTestingCompliance ? 'Show Less' : 'View All Tests'}</span>
+                <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${showAllTestingCompliance ? 'rotate-90' : ''}`} />
               </button>
             </div>
           </div>
 
-          {/* Cost Drivers Measures */}
+          {/* Utilization Cost Drivers */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm h-full flex flex-col">
             <div className="mb-4">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Cost Drivers Measures</h3>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Utilization Cost Drivers</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                 Key utilization metrics driving healthcare costs
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 flex-1">
-              {costDrivers.slice(0, 4).map((driver, index) => (
+              {(showAllUtilizationDrivers ? utilizationCostDrivers : utilizationCostDrivers.slice(0, 4)).map((driver, index) => (
                 <div key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex flex-col">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs">{driver.name}</h4>
@@ -693,9 +691,12 @@ const CurrentSituation: React.FC = () => {
               ))}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1">
-                <span>View All Drivers</span>
-                <ChevronRight className="h-3 w-3" />
+              <button 
+                onClick={() => setShowAllUtilizationDrivers(!showAllUtilizationDrivers)}
+                className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1"
+              >
+                <span>{showAllUtilizationDrivers ? 'Show Less' : 'View All Drivers'}</span>
+                <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${showAllUtilizationDrivers ? 'rotate-90' : ''}`} />
               </button>
             </div>
           </div>
