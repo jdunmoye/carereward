@@ -88,7 +88,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
           />
         </NavLink>
-        <NavLink to="/financial-metrics" className="block">
+        {/* <NavLink to="/financial-metrics" className="block">
           <Option
             Icon={DollarSign}
             title="Financial Metrics"
@@ -97,7 +97,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
             notifs={3}
           />
-        </NavLink>
+        </NavLink> */}
         <NavLink to="/clinical-metrics" className="block">
           <Option
             Icon={Heart}
@@ -107,7 +107,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
           />
         </NavLink>
-        <NavLink to="/behavior-drivers" className="block">
+        {/* <NavLink to="/behavior-drivers" className="block">
           <Option
             Icon={Activity}
             title="Behavior Analytics"
@@ -115,7 +115,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             setSelected={setSelected}
             open={open}
           />
-        </NavLink>
+        </NavLink> */}
         <NavLink to="/reward-system" className="block">
           <Option
             Icon={Award}
@@ -134,7 +134,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
           />
         </NavLink>
-        <NavLink to="/reports" className="block">
+        {/* <NavLink to="/reports" className="block">
           <Option
             Icon={FileText}
             title="Reports"
@@ -142,8 +142,8 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             setSelected={setSelected}
             open={open}
           />
-        </NavLink>
-        <NavLink to="/use-cases" className="block">
+        </NavLink> */}
+        {/* <NavLink to="/use-cases" className="block">
           <Option
             Icon={Star}
             title="Use Cases"
@@ -152,7 +152,7 @@ const Sidebar = ({ open, setOpen, selected, setSelected }: SidebarProps) => {
             open={open}
             notifs={12}
           />
-        </NavLink>
+        </NavLink> */}
       </div>
 
       <div className="border-t border-gray-200 dark:border-gray-800 pt-4 space-y-1">
@@ -238,7 +238,7 @@ const TitleSection = ({ open }: TitleSectionProps) => {
             <div className="flex items-center gap-2 transition-opacity duration-200">
               <div>
                 <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  CareReward
+                  CareReward Demo
                 </span>
                 <span className="block text-xs text-gray-500 dark:text-gray-400">
                   Healthcare Analytics

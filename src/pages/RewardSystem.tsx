@@ -43,6 +43,7 @@ const RewardSystem: React.FC = () => {
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const { isDark, toggleTheme } = useTheme();
 
   // Point Allocation System State
@@ -255,6 +256,11 @@ const RewardSystem: React.FC = () => {
     return getTotalWeight() === 100;
   };
 
+  const getCategoryPointTotal = (categoryId: number) => {
+    const category = pointAllocation.categories.find(cat => cat.id === categoryId);
+    return category ? category.subActivities.reduce((sum, sub) => sum + sub.points, 0) : 0;
+  };
+
   const savePointAllocation = () => {
     if (isWeightValid()) {
       // Here you would typically save to backend
@@ -262,6 +268,18 @@ const RewardSystem: React.FC = () => {
     } else {
       alert(`Total weight must equal 100%. Current total: ${getTotalWeight()}%`);
     }
+  };
+
+  const toggleCategoryExpansion = (categoryId: number) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
   };
 
   const getCategoryIcon = (category: string) => {
@@ -578,8 +596,25 @@ const RewardSystem: React.FC = () => {
               Point Allocation System
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Configure category weights and sub-activity point values to incentivize cost-effective healthcare decisions
+              Configure category weights and sub-activity point values to incentivize cost-effective healthcare decisions. 
+              <span className="text-green-600 dark:text-green-400 font-medium"> Category weights must total 100%.</span>
             </p>
+            <div className="mt-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-2">
+                <div className="p-1 rounded bg-blue-100 dark:bg-blue-800/30">
+                  <Calculator className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="font-medium mb-1">How it works:</p>
+                  <ul className="text-xs space-y-1 text-blue-700 dark:text-blue-300">
+                    <li>• Set category weights (must total 100%) to prioritize different care areas</li>
+                    <li>• Assign points to sub-activities within each category</li>
+                    <li>• Category totals show the sum of all sub-activity points</li>
+                    <li>• Higher point values = stronger incentives for that behavior</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
@@ -618,22 +653,38 @@ const RewardSystem: React.FC = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400">{category.description}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={category.weight}
-                    onChange={(e) => updateCategoryWeight(category.id, parseInt(e.target.value) || 0)}
-                    className="w-16 px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">%</span>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Category Total</div>
+                    <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {getCategoryPointTotal(category.id)} pts
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={category.weight}
+                      onChange={(e) => updateCategoryWeight(category.id, parseInt(e.target.value) || 0)}
+                      className="w-16 px-2 py-1 text-sm border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-300 dark:hover:border-green-600 transition-colors"
+                      title="Enter weight percentage (0-100)"
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">%</span>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sub-Activities & Points</h4>
-                {category.subActivities.map((subActivity) => (
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Sub-Activities & Points</h4>
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      Total: {getCategoryPointTotal(category.id)} pts
+                    </span>
+                  </div>
+                </div>
+                {(expandedCategories.has(category.id) ? category.subActivities : category.subActivities.slice(0, 2)).map((subActivity) => (
                   <div key={subActivity.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -649,12 +700,31 @@ const RewardSystem: React.FC = () => {
                         max="50"
                         value={subActivity.points}
                         onChange={(e) => updateSubActivityPoints(category.id, subActivity.id, parseInt(e.target.value) || 1)}
-                        className="w-16 px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-16 px-2 py-1 text-sm border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-300 dark:hover:border-green-600 transition-colors"
+                        title="Enter point value (1-50)"
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400">pts</span>
                     </div>
                   </div>
                 ))}
+                {category.subActivities.length > 2 && (
+                  <button
+                    onClick={() => toggleCategoryExpansion(category.id)}
+                    className="w-full text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center justify-center gap-1 py-2 border-t border-gray-200 dark:border-gray-700"
+                  >
+                    <span>
+                      {expandedCategories.has(category.id) 
+                        ? 'View Less' 
+                        : `View More (${category.subActivities.length - 2} more)`
+                      }
+                    </span>
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedCategories.has(category.id) ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -668,7 +738,7 @@ const RewardSystem: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Allocation Summary</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{getTotalWeight()}%</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Total Category Weight</div>
@@ -686,6 +756,12 @@ const RewardSystem: React.FC = () => {
                 )}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Total Available Points</div>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {pointAllocation.categories.length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Active Categories</div>
             </div>
           </div>
         </div>

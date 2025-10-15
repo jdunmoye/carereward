@@ -37,8 +37,8 @@ const NYCInteractiveMap: React.FC<{ geographicData: any[] }> = ({ geographicData
 };
 
 const CurrentSituation: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Last 3 Months');
-  const [comparisonType, setComparisonType] = useState('Last year same quarter');
+  const [selectedPeriod, setSelectedPeriod] = useState('Last 12 Months');
+  const [comparisonType, setComparisonType] = useState('Prior period');
   const [selectedBorough, setSelectedBorough] = useState('New York');
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [loading, setLoading] = useState(false);
@@ -60,7 +60,8 @@ const CurrentSituation: React.FC = () => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -441,7 +442,7 @@ const CurrentSituation: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Forward-Looking Predictors
+            Predictors
             {selectedBorough !== 'New York' && (
               <span className="text-lg text-green-600 dark:text-green-400 ml-2">
                 - {selectedBorough}

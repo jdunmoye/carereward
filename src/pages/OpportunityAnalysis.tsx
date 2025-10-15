@@ -28,8 +28,8 @@ import {
 } from 'lucide-react';
 
 const OpportunityAnalysis: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Last 3 Months');
-  const [comparisonType, setComparisonType] = useState('Last year same quarter');
+  const [selectedPeriod, setSelectedPeriod] = useState('Last 12 Months');
+  const [comparisonType, setComparisonType] = useState('Prior period');
   const [selectedBorough, setSelectedBorough] = useState('New York');
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [scenarioModel, setScenarioModel] = useState('conservative');

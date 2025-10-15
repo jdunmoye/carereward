@@ -529,7 +529,10 @@ const ClinicalMetrics: React.FC = () => {
                 <BarChart data={multiChronicityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="conditions" stroke={chartColors.text} />
-                  <YAxis stroke={chartColors.text} />
+                  <YAxis 
+                    stroke={chartColors.text} 
+                    tickFormatter={(value) => `${value}%`}
+                  />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: chartColors.background, 
@@ -537,6 +540,7 @@ const ClinicalMetrics: React.FC = () => {
                       borderRadius: '8px',
                       color: chartColors.text
                     }} 
+                    formatter={(value) => [`${value}%`, 'Frequency']}
                   />
                   <Bar dataKey="frequency" fill={chartColors.primary} />
                 </BarChart>
