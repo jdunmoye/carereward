@@ -91,7 +91,9 @@ export interface ClinicalOutcomes {
   current: number;
   target: number;
   improvement: number;
+  unit?: string;
   timeframe: string;
   significance: 'significant' | 'moderate' | 'minimal';
+  sustainability?: string;
   lastUpdated: Date;
 }

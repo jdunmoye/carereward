@@ -1,5 +1,5 @@
 import React from 'react';
-import { LucideIcon, AlertCircle, CheckCircle, AlertTriangle, Info } from 'lucide-react';
+import { AlertCircle, CheckCircle, AlertTriangle, Info } from 'lucide-react';
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'success' | 'warning' | 'error' | 'info';

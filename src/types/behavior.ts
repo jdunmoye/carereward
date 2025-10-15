@@ -63,13 +63,18 @@ export interface BehaviorDriver {
   targetLevel: number;
   benchmarkLevel: number;
   unit: string;
+  frequency?: string;
   impact: 'high' | 'medium' | 'low';
   trend: 'improving' | 'declining' | 'stable';
   lastUpdated: Date;
-  interventions: Intervention[];
+  points?: number;
+  isActive?: boolean;
+  participants?: number;
+  successRate?: number;
+  interventions: BehaviorIntervention[];
 }
 
-export interface Intervention {
+export interface BehaviorIntervention {
   id: string;
   name: string;
   type: string;

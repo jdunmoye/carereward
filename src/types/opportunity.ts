@@ -1,12 +1,17 @@
 // Opportunity Analysis Types
 
+import { DateRange } from './common';
+
 export type OpportunityCategory = 
   | 'avoidance' 
   | 'prevention' 
   | 'substitute' 
   | 'control' 
   | 'compliance' 
-  | 'disease_reversal';
+  | 'disease_reversal'
+  | 'cost_savings'
+  | 'quality_improvement'
+  | 'innovation';
 
 export interface OpportunityMetric {
   id: string;
@@ -70,15 +75,19 @@ export interface OpportunityAnalysis {
   roi: number;
   timeframe: string;
   priority: 'high' | 'medium' | 'low';
-  status: 'identified' | 'analyzing' | 'implementing' | 'monitoring' | 'completed';
+  status: 'identified' | 'analyzing' | 'implementing' | 'monitoring' | 'completed' | 'in_progress';
   owner: string;
   team: string[];
-  milestones: Milestone[];
+  milestones: OpportunityMilestone[];
+  potentialImpact?: number;
+  effort?: string;
+  timeline?: string;
+  department?: string;
   risks: Risk[];
   lastUpdated: Date;
 }
 
-export interface Milestone {
+export interface OpportunityMilestone {
   id: string;
   name: string;
   description: string;

@@ -1,6 +1,5 @@
 import { Bell, Search, User, Settings, ChevronDown } from 'lucide-react';
 import { Input } from '../ui/Input';
-import { cn } from '../../lib/utils';
 
 const Header = () => {
   return (

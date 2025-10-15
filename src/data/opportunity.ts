@@ -4,7 +4,6 @@ import {
   OpportunityMetric, 
   ScenarioModel, 
   OpportunityAnalysis, 
-  OpportunityReport, 
   Recommendation 
 } from '../types/opportunity';
 

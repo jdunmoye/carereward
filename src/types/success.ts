@@ -23,15 +23,15 @@ export interface PatientProfile {
   name: string;
   age: number;
   gender: 'male' | 'female' | 'other';
-  chronicConditions: ChronicCondition[];
-  riskFactors: RiskFactor[];
+  chronicConditions: SuccessChronicCondition[];
+  riskFactors: SuccessRiskFactor[];
   demographics: Demographics;
   baselineMetrics: BaselineMetric[];
   insuranceType: string;
   location: string;
 }
 
-export interface ChronicCondition {
+export interface SuccessChronicCondition {
   id: string;
   name: string;
   code: string;
@@ -41,7 +41,7 @@ export interface ChronicCondition {
   medications: Medication[];
 }
 
-export interface RiskFactor {
+export interface SuccessRiskFactor {
   id: string;
   factor: string;
   level: 'low' | 'medium' | 'high';
@@ -90,7 +90,7 @@ export interface CareApproach {
   id: string;
   teamMembers: TeamMember[];
   strategy: string;
-  interventions: Intervention[];
+  interventions: SuccessIntervention[];
   timeline: string;
   communicationPlan: string;
 }
@@ -104,7 +104,7 @@ export interface TeamMember {
   contactFrequency: string;
 }
 
-export interface Intervention {
+export interface SuccessIntervention {
   id: string;
   type: string;
   description: string;
@@ -118,7 +118,7 @@ export interface Intervention {
 export interface TreatmentJourney {
   id: string;
   phases: TreatmentPhase[];
-  milestones: Milestone[];
+  milestones: SuccessMilestone[];
   setbacks: Setback[];
   breakthroughs: Breakthrough[];
   totalDuration: number; // months
@@ -136,7 +136,7 @@ export interface TreatmentPhase {
   outcomes: string[];
 }
 
-export interface Milestone {
+export interface SuccessMilestone {
   id: string;
   name: string;
   description: string;
@@ -176,6 +176,7 @@ export interface Outcome {
   significance: 'significant' | 'moderate' | 'minimal';
   timeframe: string;
   sustainability: 'high' | 'medium' | 'low';
+  lastUpdated?: Date;
 }
 
 export interface SuccessStory {
@@ -183,6 +184,7 @@ export interface SuccessStory {
   caseStudyId: string;
   title: string;
   summary: string;
+  description?: string;
   keyOutcomes: string[];
   patientQuote?: string;
   careTeamQuote?: string;
@@ -191,6 +193,12 @@ export interface SuccessStory {
   views: number;
   shares: number;
   tags: string[];
+  category?: string;
+  impact?: number;
+  participants?: string[];
+  department?: string;
+  date?: Date;
+  metrics?: any;
 }
 
 export interface SuccessMetrics {

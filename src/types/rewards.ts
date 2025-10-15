@@ -49,7 +49,7 @@ export interface PointsCondition {
   description: string;
 }
 
-export interface EngagementMetrics {
+export interface RewardEngagementMetrics {
   id: string;
   activityId: string;
   participantId: string;

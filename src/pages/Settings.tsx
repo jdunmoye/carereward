@@ -1,4 +1,4 @@
-import { Settings as SettingsIcon, User, Bell, Shield, Database, Palette, Save } from 'lucide-react';
+import { User, Bell, Shield, Database, Palette, Save } from 'lucide-react';
 
 const Settings = () => {
   const settingsSections = [

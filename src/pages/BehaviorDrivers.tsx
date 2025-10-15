@@ -1,13 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { 
   Target, 
-  Users, 
-  Award, 
-  TrendingUp, 
-  Play, 
-  Pause, 
   Settings,
   RefreshCw,
   Moon,
@@ -26,28 +21,17 @@ import {
   Heart,
   Pill,
   Stethoscope,
-  Calendar,
-  Bell,
-  TrendingDown,
-  Minus,
   Eye,
-  Edit,
-  Plus
 } from 'lucide-react';
 import { 
   LineChart, 
   Line, 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  AreaChart,
-  Area
 } from 'recharts';
-import { boroughData, BoroughData } from '../data/boroughData';
 
 const BehaviorDrivers: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Last 3 Months');
@@ -55,13 +39,8 @@ const BehaviorDrivers: React.FC = () => {
   const [selectedBorough, setSelectedBorough] = useState('New York');
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [loading, setLoading] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState('all');
-  const [alertThreshold, setAlertThreshold] = useState(85);
   const { isDark, toggleTheme } = useTheme();
 
-  // Get data for selected borough
-  const currentBoroughData: BoroughData = boroughData[selectedBorough];
-  const { costDrivers } = currentBoroughData;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -71,9 +50,6 @@ const BehaviorDrivers: React.FC = () => {
     }).format(amount);
   };
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
 
   const handleRefresh = () => {
     setLoading(true);
@@ -162,14 +138,6 @@ const BehaviorDrivers: React.FC = () => {
     { metric: 'Out of Network Utilization', current: 12.8, target: 10.0, benchmark: 11.0, percentile: 70, status: 'warning', roi: 185000 }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success': return 'text-green-600 dark:text-green-400';
-      case 'warning': return 'text-yellow-600 dark:text-yellow-400';
-      case 'error': return 'text-red-600 dark:text-red-400';
-      default: return 'text-blue-600 dark:text-blue-400';
-    }
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -180,13 +148,6 @@ const BehaviorDrivers: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-red-500" />;
-      case 'down': return <TrendingDown className="h-4 w-4 text-green-500" />;
-      default: return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-  };
 
   return (
     <div className="space-y-6">

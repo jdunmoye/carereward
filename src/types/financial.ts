@@ -1,5 +1,7 @@
 // Financial Metrics Types
 
+import { DateRange } from './common';
+
 export interface PMPMData {
   id: string;
   period: Date;

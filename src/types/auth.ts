@@ -2,27 +2,18 @@
 
 export interface User {
   id: string;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
   role: UserRole;
-  organization: string;
   department?: string;
   avatar?: string;
   lastLogin: Date;
-  isActive: boolean;
   permissions: Permission[];
-  preferences: UserPreferences;
 }
 
-export type UserRole = 'admin' | 'manager' | 'analyst' | 'viewer';
+export type UserRole = 'admin' | 'manager' | 'analyst' | 'viewer' | 'provider';
 
-export interface Permission {
-  id: string;
-  name: string;
-  resource: string;
-  action: 'read' | 'write' | 'delete' | 'admin';
-}
+export type Permission = 'read' | 'write' | 'delete' | 'admin';
 
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'auto';

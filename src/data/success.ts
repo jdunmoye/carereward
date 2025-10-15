@@ -2,22 +2,6 @@
 
 import { 
   CaseStudy, 
-  PatientProfile, 
-  ChronicCondition, 
-  RiskFactor, 
-  Demographics, 
-  BaselineMetric, 
-  Medication, 
-  Challenge, 
-  CareApproach, 
-  TeamMember, 
-  Intervention, 
-  TreatmentJourney, 
-  TreatmentPhase, 
-  Milestone, 
-  Setback, 
-  Breakthrough, 
-  Outcome, 
   SuccessStory, 
   SuccessMetrics 
 } from '../types/success';

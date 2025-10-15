@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { 
   ArrowLeft, 
@@ -7,32 +7,23 @@ import {
   TrendingUp, 
   Users, 
   Award, 
-  Heart, 
   Target, 
   DollarSign, 
   Calendar,
   MapPin,
   User,
-  Phone,
-  Mail,
   Briefcase,
   Home,
-  ChevronRight,
   Download,
   Share2,
   Edit,
-  Eye,
   Activity,
   Shield,
-  Pill,
   CheckCircle,
-  Brain,
   Clock,
   BarChart3,
-  PieChart as LucidePieChart,
-  LineChart as LucideLineChart
 } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const UseCaseDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -276,16 +267,6 @@ const UseCaseDetails: React.FC = () => {
     );
   }
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'diabetes': return <Pill className="w-6 h-6 text-blue-600 dark:text-blue-400" />;
-      case 'cardiac': return <Heart className="w-6 h-6 text-red-600 dark:text-red-400" />;
-      case 'mental_health': return <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />;
-      case 'preventive': return <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />;
-      case 'medication': return <CheckCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />;
-      default: return <Award className="w-6 h-6 text-gray-600 dark:text-gray-400" />;
-    }
-  };
 
   const getCategoryName = (category: string) => {
     switch (category) {
@@ -323,7 +304,7 @@ const UseCaseDetails: React.FC = () => {
   // Clinical outcomes data for before/after comparison
   const clinicalOutcomesData = [
     { name: 'Before', value: 100, fill: '#ef4444' },
-    { name: 'After', value: 100 - (useCase.outcomes.clinical.a1c?.improvement || useCase.outcomes.clinical.bloodPressure?.improvement || useCase.outcomes.clinical.depressionScore?.improvement || 0), fill: '#10b981' }
+    { name: 'After', value: 100 - Number(useCase.outcomes.clinical.a1c?.improvement || useCase.outcomes.clinical.bloodPressure?.improvement || useCase.outcomes.clinical.depressionScore?.improvement || 0), fill: '#10b981' }
   ];
 
   // Cost savings over time

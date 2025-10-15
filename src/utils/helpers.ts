@@ -3,7 +3,7 @@
 /**
  * Format a date string or Date object to a readable format
  */
-export const formatDate = (date: string | Date, formatStr: string = 'MMM dd, yyyy'): string => {
+export const formatDate = (date: string | Date, _formatStr: string = 'MMM dd, yyyy'): string => {
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(dateObj.getTime())) return 'Invalid Date';
@@ -85,7 +85,7 @@ export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -272,7 +272,7 @@ export const camelToKebab = (str: string): string => {
  * Convert kebab-case to camelCase
  */
 export const kebabToCamel = (str: string): string => {
-  return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+  return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 };
 
 /**

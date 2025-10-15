@@ -479,7 +479,7 @@ const ExampleContent = ({
               <User className="h-4 w-4 text-white" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Dr. Sarah Johnson'}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{currentUser ? currentUser.name : 'Dr. Sarah Johnson'}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.department}</p>
             </div>
             <ChevronDown className="h-4 w-4 text-gray-400" />

@@ -11,16 +11,16 @@ export * from './financial';
 export * from './clinical';
 
 // Behavior Analytics Types
-export * from './behavior';
+export type { BehaviorMetric, TrendData, AlertData, BehaviorDriver, BehaviorIntervention } from './behavior';
 
 // Opportunity Analysis Types
-export * from './opportunity';
+export type { OpportunityCategory, OpportunityMetric, OpportunityAnalysis, OpportunityMilestone, Risk } from './opportunity';
 
 // Reward System Types
-export * from './rewards';
+export type { RewardProgram, RewardActivity, RewardEngagementMetrics, RewardRedemption, RewardAnalytics } from './rewards';
 
 // Success Stories Types
-export * from './success';
+export type { CaseStudy, PatientProfile, SuccessChronicCondition, SuccessRiskFactor, Demographics, BaselineMetric, Medication, Challenge, CareApproach, TeamMember, SuccessIntervention, TreatmentJourney, TreatmentPhase, SuccessMilestone, Setback, Breakthrough, Outcome, SuccessStory, SuccessMetrics } from './success';
 
 // Common Types
 export * from './common';
@@ -53,4 +53,65 @@ export interface NavigationItem {
   icon: string;
   children?: NavigationItem[];
   badge?: number;
+}
+
+// Missing types for backward compatibility
+export interface FinancialMetrics {
+  id: string;
+  metric: string;
+  value: number;
+  unit: string;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  lastUpdated: Date;
+  totalSavings?: number;
+  costPerPatient?: number;
+  revenueImpact?: number;
+  roi?: number;
+  budgetAllocation?: any[];
+  monthlyTrends?: any[];
+}
+
+export interface RewardSystem {
+  id: string;
+  name: string;
+  description: string;
+  points: number;
+  category: string;
+  status: 'active' | 'inactive';
+  lastUpdated: Date;
+  type?: string;
+  value?: number;
+  criteria?: string[];
+  isActive?: boolean;
+  icon?: string;
+  color?: string;
+}
+
+export interface Report {
+  id: string;
+  title: string;
+  type: string;
+  generatedAt: Date;
+  data: any;
+  name?: string;
+  description?: string;
+  parameters?: any[];
+  schedule?: string;
+  lastGenerated?: Date;
+  recipients?: string[];
+}
+
+// Legacy ClinicalMetrics interface
+export interface ClinicalMetrics {
+  patientSatisfaction: number;
+  readmissionRate: number;
+  qualityScore: number;
+  outcomeImprovements: Array<{
+    metric: string;
+    baseline: number;
+    current: number;
+    improvement: number;
+    target: number;
+  }>;
+  departmentPerformance?: any[];
 }
