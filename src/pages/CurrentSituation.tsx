@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import NYCMap from '../components/NYCMap';
+import GoogleMapsNYC from '../components/GoogleMapsNYC';
 
 import { 
   DollarSign, 
@@ -26,7 +26,7 @@ import { boroughData, BoroughData } from '../data/boroughData';
 
 // NYC Interactive Map Wrapper Component
 const NYCInteractiveMap: React.FC<{ geographicData: any[] }> = ({ geographicData }) => {
-  return <NYCMap geographicData={geographicData} />;
+  return <GoogleMapsNYC geographicData={geographicData} />;
 };
 
 const CurrentSituation: React.FC = () => {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-interface NYCMapProps {
+interface RealisticNYCMapProps {
   geographicData: any[];
   onBoroughSelect?: (borough: string) => void;
 }
 
-const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
+const RealisticNYCMap: React.FC<RealisticNYCMapProps> = ({ geographicData, onBoroughSelect }) => {
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
 
   const getBoroughColor = (boroughName: string) => {
@@ -24,69 +24,69 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
   };
 
   const handleBoroughClick = (boroughName: string) => {
-        const newSelection = selectedBorough === boroughName ? null : boroughName;
-        setSelectedBorough(newSelection);
-        if (onBoroughSelect) {
-          onBoroughSelect(newSelection || '');
-        }
+    const newSelection = selectedBorough === boroughName ? null : boroughName;
+    setSelectedBorough(newSelection);
+    if (onBoroughSelect) {
+      onBoroughSelect(newSelection || '');
+    }
   };
 
   // Realistic NYC borough boundaries with proper geographic shapes
   const boroughBoundaries = {
     'Manhattan': {
-      path: 'M 300 200 L 700 200 L 700 400 L 300 400 Z',
+      path: 'M 350 180 L 650 180 L 650 420 L 350 420 Z',
       center: [500, 300],
       label: { x: 500, y: 300 }
     },
     'Brooklyn': {
-      path: 'M 200 400 L 500 400 L 500 700 L 200 700 Z',
-      center: [350, 550],
-      label: { x: 350, y: 550 }
+      path: 'M 200 420 L 500 420 L 500 720 L 200 720 Z',
+      center: [350, 570],
+      label: { x: 350, y: 570 }
     },
     'Queens': {
-      path: 'M 500 200 L 800 200 L 800 500 L 500 500 Z',
-      center: [650, 350],
-      label: { x: 650, y: 350 }
+      path: 'M 500 180 L 800 180 L 800 480 L 500 480 Z',
+      center: [650, 330],
+      label: { x: 650, y: 330 }
     },
     'Bronx': {
-      path: 'M 200 100 L 500 100 L 500 200 L 200 200 Z',
-      center: [350, 150],
-      label: { x: 350, y: 150 }
+      path: 'M 200 80 L 500 80 L 500 180 L 200 180 Z',
+      center: [350, 130],
+      label: { x: 350, y: 130 }
     },
     'Staten Island': {
-      path: 'M 100 500 L 200 500 L 200 700 L 100 700 Z',
-      center: [150, 600],
-      label: { x: 150, y: 600 }
+      path: 'M 80 480 L 200 480 L 200 720 L 80 720 Z',
+      center: [140, 600],
+      label: { x: 140, y: 600 }
     }
   };
 
   return (
     <div className="relative w-full h-96 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800">
-      {/* Realistic NYC Map with Actual Geographic Features */}
+      {/* Realistic NYC Map with Proper Geographic Features */}
       <svg 
         className="absolute inset-0 w-full h-full" 
-        viewBox="0 0 1000 800"
+        viewBox="0 0 900 800"
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Background - Land and Water */}
-        <rect width="1000" height="800" fill="#E5E7EB" />
+        {/* Background - Water */}
+        <rect width="900" height="800" fill="#3B82F6" fillOpacity="0.2" />
         
-        {/* Water Bodies - Simplified realistic shapes */}
-        <g fill="#3B82F6" fillOpacity="0.3">
+        {/* Water Bodies - Realistic shapes */}
+        <g fill="#3B82F6" fillOpacity="0.4">
           {/* Hudson River */}
-          <rect x="0" y="0" width="300" height="800" />
+          <rect x="0" y="0" width="200" height="800" />
           
           {/* East River */}
-          <rect x="700" y="0" width="300" height="800" />
+          <rect x="700" y="0" width="200" height="800" />
           
           {/* Upper Bay */}
-          <ellipse cx="500" cy="600" rx="150" ry="80" />
+          <ellipse cx="500" cy="600" rx="120" ry="60" />
           
           {/* Lower Bay */}
-          <ellipse cx="500" cy="700" rx="200" ry="60" />
+          <ellipse cx="500" cy="700" rx="150" ry="50" />
           
           {/* Harlem River */}
-          <rect x="200" y="200" width="600" height="20" />
+          <rect x="200" y="180" width="500" height="15" />
         </g>
 
         {/* Borough Boundaries with Realistic Shapes */}
@@ -95,7 +95,7 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
             <path
               d={boundary.path}
               fill={selectedBorough === boroughName ? getBoroughColor(boroughName) : getBoroughColor(boroughName)}
-              fillOpacity={selectedBorough === boroughName ? 0.8 : 0.3}
+              fillOpacity={selectedBorough === boroughName ? 0.7 : 0.4}
               stroke="#1F2937"
               strokeWidth="2"
               className="cursor-pointer transition-all duration-200 hover:fill-opacity-80"
@@ -107,7 +107,7 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
               x={boundary.label.x} 
               y={boundary.label.y} 
               textAnchor="middle" 
-              className="text-lg font-bold fill-white pointer-events-none" 
+              className="text-sm font-bold fill-white pointer-events-none" 
               style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}
             >
               {boroughName}
@@ -116,9 +116,9 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
         ))}
 
         {/* Major Highways - Simplified */}
-        <g stroke="#DC2626" strokeWidth="3" fill="none" strokeOpacity="0.7">
+        <g stroke="#DC2626" strokeWidth="2" fill="none" strokeOpacity="0.6">
           {/* I-95 (Cross Bronx Expressway) */}
-          <line x1="200" y1="150" x2="500" y2="150" />
+          <line x1="200" y1="130" x2="500" y2="130" />
           
           {/* I-278 (Brooklyn-Queens Expressway) */}
           <line x1="500" y1="300" x2="500" y2="600" />
@@ -127,21 +127,21 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
           <line x1="500" y1="300" x2="800" y2="300" />
           
           {/* I-87 (Major Deegan Expressway) */}
-          <line x1="200" y1="0" x2="200" y2="200" />
+          <line x1="200" y1="0" x2="200" y2="180" />
           
           {/* FDR Drive */}
-          <line x1="700" y1="200" x2="700" y2="400" />
+          <line x1="650" y1="180" x2="650" y2="420" />
         </g>
 
         {/* Major Streets - Simplified grid */}
-        <g stroke="#6B7280" strokeWidth="1" fill="none" strokeOpacity="0.4">
+        <g stroke="#6B7280" strokeWidth="1" fill="none" strokeOpacity="0.3">
           {/* Manhattan Avenues */}
-          <line x1="400" y1="200" x2="400" y2="400" />
-          <line x1="500" y1="200" x2="500" y2="400" />
-          <line x1="600" y1="200" x2="600" y2="400" />
+          <line x1="400" y1="180" x2="400" y2="420" />
+          <line x1="500" y1="180" x2="500" y2="420" />
+          <line x1="600" y1="180" x2="600" y2="420" />
           
           {/* Manhattan Streets */}
-          <line x1="300" y1="300" x2="700" y2="300" />
+          <line x1="350" y1="300" x2="650" y2="300" />
           
           {/* Brooklyn Streets */}
           <line x1="200" y1="500" x2="500" y2="500" />
@@ -155,17 +155,17 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
         {/* Bridges and Tunnels - Simplified */}
         <g stroke="#F59E0B" strokeWidth="2" fill="none" strokeOpacity="0.8">
           {/* Brooklyn Bridge */}
-          <line x1="500" y1="400" x2="500" y2="360" />
+          <line x1="500" y1="420" x2="500" y2="380" />
           {/* Manhattan Bridge */}
-          <line x1="520" y1="400" x2="520" y2="360" />
+          <line x1="520" y1="420" x2="520" y2="380" />
           {/* Williamsburg Bridge */}
-          <line x1="540" y1="400" x2="540" y2="360" />
+          <line x1="540" y1="420" x2="540" y2="380" />
           {/* Queensboro Bridge */}
-          <line x1="560" y1="400" x2="560" y2="360" />
+          <line x1="560" y1="420" x2="560" y2="380" />
           {/* Verrazzano-Narrows Bridge */}
-          <line x1="150" y1="600" x2="150" y2="560" />
+          <line x1="140" y1="600" x2="140" y2="560" />
           {/* George Washington Bridge */}
-          <line x1="200" y1="200" x2="200" y2="160" />
+          <line x1="200" y1="180" x2="200" y2="140" />
         </g>
 
         {/* Major Parks - Simplified */}
@@ -208,7 +208,7 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
 
         {/* Road Labels - Simplified */}
         <g className="text-xs fill-gray-600 dark:fill-gray-400 pointer-events-none">
-          <text x="350" y="145" textAnchor="middle">I-95</text>
+          <text x="350" y="125" textAnchor="middle">I-95</text>
           <text x="650" y="295" textAnchor="middle">I-495</text>
           <text x="505" y="450" textAnchor="middle">I-278</text>
         </g>
@@ -302,4 +302,4 @@ const NYCMap: React.FC<NYCMapProps> = ({ geographicData, onBoroughSelect }) => {
   );
 };
 
-export default NYCMap;
+export default RealisticNYCMap;
