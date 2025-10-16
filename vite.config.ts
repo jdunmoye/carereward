@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/carereward/",
+  base: process.env.NODE_ENV === 'production' ? '/carereward/' : '/',
+  build: {
+    outDir: 'dist',
+  },
   resolve: {
     alias: {
       '@': '/src',

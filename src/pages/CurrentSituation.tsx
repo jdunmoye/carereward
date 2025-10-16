@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import NYCMap from '../components/NYCMap';
-import NYCMapFallback from '../components/NYCMapFallback';
 
 import { 
   DollarSign, 
@@ -25,15 +24,9 @@ import {
 // Note: Using borough-specific data instead of mock data
 import { boroughData, BoroughData } from '../data/boroughData';
 
-// NYC Interactive Map Wrapper Component with fallback
+// NYC Interactive Map Wrapper Component
 const NYCInteractiveMap: React.FC<{ geographicData: any[] }> = ({ geographicData }) => {
-  // Try to render the Leaflet map, fallback to SVG if it fails
-  try {
-    return <NYCMap geographicData={geographicData} />;
-  } catch (error) {
-    console.warn('Leaflet map failed to load, using fallback:', error);
-    return <NYCMapFallback geographicData={geographicData} />;
-  }
+  return <NYCMap geographicData={geographicData} />;
 };
 
 const CurrentSituation: React.FC = () => {
