@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 
 interface GoogleMapsNYCProps {
@@ -64,10 +64,7 @@ const MapComponent: React.FC<{
   onBoroughSelect?: (borough: string) => void;
   geographicData: any[];
 }> = ({ onBoroughSelect, geographicData }) => {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
-  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
-  const [rectangles, setRectangles] = useState<google.maps.Rectangle[]>([]);
 
   const mapRef = useCallback((node: HTMLDivElement) => {
     if (node !== null) {
@@ -110,14 +107,10 @@ const MapComponent: React.FC<{
         }
       });
 
-      setMap(mapInstance);
-
       // Create InfoWindow
       const infoWindowInstance = new google.maps.InfoWindow();
-      setInfoWindow(infoWindowInstance);
 
       // Add borough overlays
-      const newRectangles: google.maps.Rectangle[] = [];
       
       Object.entries(NYC_BOROUGHS).forEach(([boroughName, boroughData]) => {
         const rectangle = new google.maps.Rectangle({
@@ -133,7 +126,6 @@ const MapComponent: React.FC<{
         });
 
         rectangle.setMap(mapInstance);
-        newRectangles.push(rectangle);
 
         // Add click listener
         rectangle.addListener('click', () => {
@@ -144,28 +136,10 @@ const MapComponent: React.FC<{
             onBoroughSelect(newSelection || '');
           }
 
-          // Update all rectangles appearance
-          newRectangles.forEach(rect => {
-            const rectBorough = Object.keys(NYC_BOROUGHS).find(name => 
-              rect.getBounds()?.equals(new google.maps.LatLngBounds(
-                { lat: NYC_BOROUGHS[name as keyof typeof NYC_BOROUGHS].bounds.south, 
-                  lng: NYC_BOROUGHS[name as keyof typeof NYC_BOROUGHS].bounds.west },
-                { lat: NYC_BOROUGHS[name as keyof typeof NYC_BOROUGHS].bounds.north, 
-                  lng: NYC_BOROUGHS[name as keyof typeof NYC_BOROUGHS].bounds.east }
-              ))
-            );
-            
-            if (rectBorough === boroughName) {
-              rect.setOptions({
-                fillOpacity: newSelection ? 0.6 : 0.3,
-                strokeWeight: newSelection ? 3 : 2
-              });
-            } else {
-              rect.setOptions({
-                fillOpacity: 0.3,
-                strokeWeight: 2
-              });
-            }
+          // Update rectangle appearance
+          rectangle.setOptions({
+            fillOpacity: newSelection ? 0.6 : 0.3,
+            strokeWeight: newSelection ? 3 : 2
           });
 
           // Show info window
@@ -195,7 +169,7 @@ const MapComponent: React.FC<{
         });
 
         // Add borough label marker
-        const marker = new google.maps.Marker({
+        new google.maps.Marker({
           position: boroughData.center,
           map: mapInstance,
           title: boroughName,
@@ -221,15 +195,13 @@ const MapComponent: React.FC<{
           }
         });
       });
-
-      setRectangles(newRectangles);
     }
   }, [selectedBorough, onBoroughSelect, geographicData]);
 
   return <div ref={mapRef} style={{ width: '100%', height: '400px' }} />;
 };
 
-const render = (status: Status) => {
+const render = (status: Status): React.ReactElement => {
   switch (status) {
     case Status.LOADING:
       return (
@@ -261,13 +233,19 @@ const render = (status: Status) => {
         </div>
       );
     default:
-      return null;
+      return (
+        <div className="flex items-center justify-center h-96 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div className="text-center">
+            <p className="text-gray-600 dark:text-gray-400">Initializing map...</p>
+          </div>
+        </div>
+      );
   }
 };
 
 const GoogleMapsNYC: React.FC<GoogleMapsNYCProps> = ({ geographicData, onBoroughSelect }) => {
   // You need to add your Google Maps API key here
-  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
 
   return (
     <div className="relative w-full rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800">
